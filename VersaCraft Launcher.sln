@@ -1,0 +1,43 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30330.147
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VersaCraft Launcher", "VersaCraft Launcher\VersaCraft Launcher.csproj", "{C873C0A1-8F55-4775-AC2A-A1D328A44D4F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VersaCraft Auth", "VersaCraft Auth\VersaCraft Auth.csproj", "{7770B6EB-DE2B-4214-B683-2A1339B5D0A1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VersaCraft Protocol", "VersaCraft Protocol\VersaCraft Protocol.csproj", "{6705BED3-74BB-42DD-BF0D-8D9792173C2F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VersaCraft Logger", "VersaCraft Logger\VersaCraft Logger.csproj", "{3A9E4157-2269-4F39-81FA-F0430FC29A22}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C873C0A1-8F55-4775-AC2A-A1D328A44D4F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C873C0A1-8F55-4775-AC2A-A1D328A44D4F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C873C0A1-8F55-4775-AC2A-A1D328A44D4F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C873C0A1-8F55-4775-AC2A-A1D328A44D4F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7770B6EB-DE2B-4214-B683-2A1339B5D0A1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7770B6EB-DE2B-4214-B683-2A1339B5D0A1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7770B6EB-DE2B-4214-B683-2A1339B5D0A1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7770B6EB-DE2B-4214-B683-2A1339B5D0A1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6705BED3-74BB-42DD-BF0D-8D9792173C2F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6705BED3-74BB-42DD-BF0D-8D9792173C2F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6705BED3-74BB-42DD-BF0D-8D9792173C2F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6705BED3-74BB-42DD-BF0D-8D9792173C2F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3A9E4157-2269-4F39-81FA-F0430FC29A22}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3A9E4157-2269-4F39-81FA-F0430FC29A22}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3A9E4157-2269-4F39-81FA-F0430FC29A22}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3A9E4157-2269-4F39-81FA-F0430FC29A22}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {324DE8E1-F87C-4246-A8A3-2A25E3C86CE9}
+	EndGlobalSection
+EndGlobal
