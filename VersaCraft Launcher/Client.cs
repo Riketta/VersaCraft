@@ -33,7 +33,7 @@ namespace VersaCraft_Launcher
         {
             while (true)
             {
-                logger.Info("Connecting");
+                logger.Info("Connecting to server");
                 client = new TcpClient(host, Protocol.Port);
                 stream = client.GetStream();
 
@@ -52,11 +52,11 @@ namespace VersaCraft_Launcher
                     }
                     catch (Exception ex)
                     {
-                        Console.WriteLine(ex);
+                        logger.Error(ex.ToString());
                     }
                 });
 
-                logger.Info("Reconnecting");
+                logger.Info("Reconnecting to server");
             }
         }
 
@@ -65,21 +65,23 @@ namespace VersaCraft_Launcher
             switch (packet.Type)
             {
                 case PacketType.ServerSendLauncherUpdate:
-                    logger.Info("Self updating");
                     FileData fileData = Protocol.DataDeserialize<FileData>(packet.Data);
                     UpdateManager.SelfUpdate(fileData.File);
                     break;
 
                 case PacketType.ServerSendClientsList:
-                    //string version = Protocol.DataDeserialize<string>(packet.Data);
+                    ClientsData clients = Protocol.DataDeserialize<ClientsData>(packet.Data);
+                    Config.Instance.UpdateClients(clients);
                     break;
 
                 case PacketType.ServerSendClientsFiles:
-
+                    ClientsFilesData clientsFiles = Protocol.DataDeserialize<ClientsFilesData>(packet.Data);
+                    Config.Instance.UpdateClientsFiles(clientsFiles); 
                     break;
 
                 case PacketType.ServerSendClientFile:
-
+                    fileData = Protocol.DataDeserialize<FileData>(packet.Data);
+                    UpdateManager.SaveFile(fileData);
                     break;
 
                 default:
@@ -102,6 +104,24 @@ namespace VersaCraft_Launcher
         public static void RequestLauncherUpdate()
         {
             Packet packet = Protocol.FormPacket(PacketType.LauncherRequestLauncherUpdate, Assembly.GetEntryAssembly().GetName().Version.ToString());
+            Protocol.SendPacket(packet, client);
+        }
+
+        public static void RequestClients()
+        {
+            Packet packet = Protocol.FormPacket(PacketType.LauncherRequestClients, "");
+            Protocol.SendPacket(packet, client);
+        }
+
+        public static void RequestClientsFiles()
+        {
+            Packet packet = Protocol.FormPacket(PacketType.LauncherRequestClientsFiles, "");
+            Protocol.SendPacket(packet, client);
+        }
+
+        public static void RequestFile(string filepath)
+        {
+            Packet packet = Protocol.FormPacket(PacketType.LauncherRequestClientFile, filepath);
             Protocol.SendPacket(packet, client);
         }
     }

@@ -38,18 +38,18 @@ namespace VersaCraft_Auth
         /// <summary>
         /// Путь к папке с данными обновлений
         /// </summary>
-        private static readonly string updatesFolder = @"updates";
+        public static readonly string UpdatesFolder = @"updates";
 
         /// <summary>
         /// Путь к актуальной версии лаунчера
         /// </summary>
-        private static readonly string launcherFile = Path.Combine(updatesFolder, @"launcher.exe");
+        private static readonly string launcherFile = Path.Combine(UpdatesFolder, @"launcher.exe");
         //private static readonly string launcherFile = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), @"Updates\Launcher.exe");
 
         /// <summary>
         /// Путь к файлу со списком клиентов в формате Nx[client_path:client_name:client_url;] (см. реализацию <see cref="ClientsData.ToString"/>)
         /// </summary>
-        private static readonly string clientsListFile = Path.Combine(updatesFolder, @"clients.txt");
+        private static readonly string clientsListFile = Path.Combine(UpdatesFolder, @"clients.txt");
         //private static readonly string clientsListFile = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), @"Updates\Clients.txt");
 
 
@@ -59,8 +59,8 @@ namespace VersaCraft_Auth
         string launcherVersion = null;
         public string LauncherVersion { get => launcherVersion; }
 
-        ClientsData clientsData;
-        public ClientsData ClientsData { get => clientsData; }
+        ClientsData clients;
+        public ClientsData Clients { get => clients; }
 
         ClientsFilesData clientsFiles;
         public ClientsFilesData ClientsFiles { get => clientsFiles; }
@@ -111,65 +111,85 @@ namespace VersaCraft_Auth
 
             string versionsRaw = File.ReadAllText(clientsListFile);
             // client_path:client_name:client_url;client_path:client_name:client_url;...
-            string[] clients = versionsRaw.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
-            logger.Info("Caching {0} clients", clients.Length);
+            string[] rawClients = versionsRaw.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
+            logger.Info("Caching {0} clients", rawClients.Length);
 
-            foreach (var rawClient in clients)
+            foreach (var rawClient in rawClients)
             {
-                string[] clientFields = rawClient.Split(':');
-                if (string.IsNullOrEmpty(clientFields[0]))
+                string[] clientFields = rawClient.Trim().Split(':'); // care with trim
+                string path = clientFields[0];
+                string name = clientFields[1];
+                string url = clientFields[2];
+
+                if (string.IsNullOrEmpty(path))
                 {
                     logger.Error("Found client without path!");
                     continue;
                 }
 
-                string path = Path.Combine(updatesFolder, clientFields[0]);
                 ClientsData.Client client = new ClientsData.Client()
                 {
                     Path = path,
-                    Name = !string.IsNullOrEmpty(clientFields[1]) ? clientFields[1] : clientFields[0], // not combined path!
-                    URL = !string.IsNullOrEmpty(clientFields[2]) ? clientFields[2] : "",
+                    Name = !string.IsNullOrEmpty(name) ? name : path, // not combined path!
+                    URL = !string.IsNullOrEmpty(url) ? url : "",
                 };
 
-                logger.Debug("Added new client \"{0}\" with path \"{1}\" and URL \"{2}\"", client.Name, client.Path, client.URL);
+                if (newClients.Exists(c => c.Name == client.Name) || newClients.Exists(c => c.Path == client.Path))
+                {
+                    logger.Error("Client with same name or path already added! Skipping this one: \"{0}\"; \"{1}\"", client.Name, client.Path);
+                    continue;
+                }
+                
                 newClients.Add(client);
+                logger.Info("Added new client \"{0}\" with path \"{1}\" and URL \"{2}\"", client.Name, client.Path, client.URL);
             }
 
-            clientsData.Clients = newClients.ToArray();
+            ClientsData clientsData = new ClientsData()
+            {
+                Clients = newClients.ToArray(),
+            };
+            clients = clientsData;
         }
 
         /// <summary>
-        /// Генерирует список всех файлов и их хэшей всех клиентов, требует наличия списка версий <see cref="ClientsData"/>
+        /// Генерирует список всех файлов и их хэшей всех клиентов, требует наличия списка версий <see cref="Clients"/>
         /// </summary>
         public void LoadClientFilesData()
         {
-            if (clientsData.Clients == null || clientsData.Clients.Length == 0)
+            if (clients.Clients == null || clients.Clients.Length == 0)
             {
                 logger.Warn("No clients found! Can't parse files for update lists");
                 return;
             }
 
             List<ClientsFilesData.File> newFiles = new List<ClientsFilesData.File>();
-            foreach (var client in clientsData.Clients)
+            foreach (var client in clients.Clients)
             {
-                string[] allFiles = Directory.GetFiles(client.Path, "*", SearchOption.AllDirectories);
+                string localpath = Path.Combine(UpdatesFolder, client.Path);
+                string[] allFiles = Directory.GetFiles(localpath, "*", SearchOption.AllDirectories);
                 logger.Info("Caching {1} files for client \"{0}\"", client.Path, allFiles.Length);
 
                 foreach (var filepath in allFiles)
                 {
+                    string path = filepath.Split(new char[] { '\\' }, 2)[1]; // TODO: pretty scary way to fix path
+
                     ClientsFilesData.File file = new ClientsFilesData.File()
                     {
-                        Filepath = filepath,
+                        Filepath = path,
                         Hash = CryptoUtils.CalculateFileMD5(filepath),
                     };
 
-                    //logger.Debug("Added file [{0}] with hash {1}", file.Filepath, file.Hash);
+                    logger.Debug("Added file [{0}] with hash {1}", file.Filepath, file.Hash);
                     newFiles.Add(file);
                 }
             }
 
-            logger.Info("Cached total {0} files for {1} clients", newFiles.Count, clientsData.Clients.Length);
-            clientsFiles.Files = newFiles.ToArray();
+            ClientsFilesData clientsFilesData = new ClientsFilesData()
+            {
+                Files = newFiles.ToArray(),
+            };
+            clientsFiles = clientsFilesData;
+            logger.Info("Cached total {0} files for {1} clients", newFiles.Count, clients.Clients.Length);
         }
     }
 }

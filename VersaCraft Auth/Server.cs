@@ -26,7 +26,6 @@ namespace VersaCraft_Auth
             logger.Info("Waiting for clients...");
             while (true)
                 _ = Accept(server.AcceptTcpClient());
-
         }
 
         public static void Stop()
@@ -57,7 +56,7 @@ namespace VersaCraft_Auth
             }
             catch (Exception ex)
             {
-                logger.Error("Client disconnected: {0}", ex.ToString());
+                logger.Error("Client {0} disconnected: {1}", ((IPEndPoint)client?.Client?.RemoteEndPoint).ToString(), ex.ToString());
             }
         }
 
@@ -76,15 +75,16 @@ namespace VersaCraft_Auth
                     break;
 
                 case PacketType.LauncherRequestClients:
-
+                    ServerResponses.SendClients(client);
                     break;
 
                 case PacketType.LauncherRequestClientsFiles:
-
+                    ServerResponses.SendClientsFiles(client);
                     break;
 
                 case PacketType.LauncherRequestClientFile:
-
+                    string filepath = Protocol.DataDeserialize<string>(packet.Data);
+                    ServerResponses.SendFile(filepath, client);
                     break;
 
                 default:

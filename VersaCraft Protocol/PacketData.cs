@@ -23,26 +23,28 @@ namespace VersaCraft.Protocol
     [StructLayout(LayoutKind.Sequential, Pack = 1, CharSet = CharSet.Ansi)]
     public struct ClientsData : PacketData
     {
+        [Serializable]
+        [StructLayout(LayoutKind.Sequential, Pack = 1, CharSet = CharSet.Ansi)]
         public struct Client
         {
             /// <summary>
-            /// Путь к клиенту на сервере обновлений
+            /// Путь к клиенту на сервере обновлений. Должно быть уникальным значением, основной ID клиента.
             /// </summary>
             public string Path;
 
             /// <summary>
-            /// Имя клиента, может быть пустым (тогда за имя считать путь)
+            /// Имя клиента, может быть пустым (тогда за имя считать путь). Должно быть уникальным значением.
             /// </summary>
             public string Name;
 
             /// <summary>
-            /// Адрес индивидуальной страницы клиента, может быть пустым
+            /// Адрес индивидуальной страницы клиента, может быть пустым.
             /// </summary>
             public string URL;
         }
 
         /// <summary>
-        /// Список версий клиентов на сервере обновлений
+        /// Список клиентов на сервере обновлений.
         /// </summary>
         public Client[] Clients;
 
@@ -60,6 +62,8 @@ namespace VersaCraft.Protocol
     [StructLayout(LayoutKind.Sequential, Pack = 1, CharSet = CharSet.Ansi)]
     public struct ClientsFilesData : PacketData
     {
+        [Serializable]
+        [StructLayout(LayoutKind.Sequential, Pack = 1, CharSet = CharSet.Ansi)]
         public struct File
         {
             /// <summary>

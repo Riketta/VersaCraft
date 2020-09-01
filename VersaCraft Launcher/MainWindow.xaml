@@ -16,7 +16,7 @@
                 <ProgressBar x:Name="updateBar" Margin="0,0,0,28" Value="35" HorizontalAlignment="Left" Width="560" Height="20" VerticalAlignment="Bottom" Background="#FFEEEEEE" Foreground="#FF00FFE8" BorderBrush="#FF00FFE8"/>
                 <Label x:Name="status" Content="Downloading 1.16.2\servers.dat" HorizontalAlignment="Left" Margin="0,24,0,0" VerticalAlignment="Top" Padding="2"/>
                 <PasswordBox x:Name="password" Margin="574,29,80,0" VerticalAlignment="Top" Height="20"/>
-                <ComboBox x:Name="gameVersions" HorizontalAlignment="Left" Margin="320,28,0,0" VerticalAlignment="Top" Width="120"/>
+                <ComboBox x:Name="clients" HorizontalAlignment="Left" Margin="320,28,0,0" VerticalAlignment="Top" Width="120"/>
             </Grid>
         </Border>
     </Grid>
