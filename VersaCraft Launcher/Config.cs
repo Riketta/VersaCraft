@@ -89,7 +89,7 @@ namespace VersaCraft_Launcher
         private string username;
 
         /// <summary>
-        /// Stores password hash. If <see cref="IsSavingPassword"/> set to false then auto wipe stored password hash and return "".
+        /// Stores password hash. When <see cref="IsSavingPassword"/> set to false then auto wipe stored password hash.
         /// </summary>
         public string PassHash
         {
@@ -110,11 +110,8 @@ namespace VersaCraft_Launcher
             {
                 if (ini != null)
                 {
-                    if (IsSavingPassword)
-                    {
-                        ini.WriteValue(LauncherSection, nameof(pass_hash), IsSavingPassword ? value : "");
-                        pass_hash = IsSavingPassword ? value : "";
-                    }
+                    ini.WriteValue(LauncherSection, nameof(pass_hash), IsSavingPassword ? value : "");
+                    pass_hash = IsSavingPassword ? value : "";
                 }
                 else
                     logger.Error("Failed to write data to config! Field: {0}", nameof(pass_hash));
@@ -123,7 +120,7 @@ namespace VersaCraft_Launcher
         private string pass_hash;
 
         /// <summary>
-        /// Represents necessity to save password hash. If set to false auto cleanup <see cref="PassHash"/> hash data in local storage.
+        /// Represents necessity to save password hash. When set to false auto clean-up <see cref="PassHash"/> hash data in local storage.
         /// </summary>
         public bool IsSavingPassword
         {

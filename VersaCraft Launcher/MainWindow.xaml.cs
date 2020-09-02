@@ -97,15 +97,15 @@ namespace VersaCraft_Launcher
 
                 logger.Info("Updating config with current login data");
                 Config.Instance.Username = username.Text;
-                // if we required to save hash and doing it first time (no currently password saved), check to prevent hashing hash
-                if (string.IsNullOrEmpty(Config.Instance.PassHash))
-                    Config.Instance.PassHash = CryptoUtils.CalculateStringVersaHash(password.Password);
+                
+                string passHash = Config.Instance.PassHash == password.Password ? Config.Instance.PassHash : CryptoUtils.CalculateStringVersaHash(password.Password);
+                Config.Instance.PassHash = passHash;
 
                 string session = CryptoUtils.CalculateStringSHA1(string.Format("{0}_{1}_{2}", Config.Instance.Username, DateTime.Now.Ticks.ToString(), CryptoUtils.GetComputerSid().ToString()));
 
                 logger.Info("Requesting auth");
                 ControlsManager.SetStatus("Requesting auth...");
-                Client.RequestAuth(session, username.Text, Config.Instance.IsSavingPassword ? Config.Instance.PassHash : password.Password, Config.Instance.IsSavingPassword);
+                Client.RequestAuth(session, username.Text, passHash);
             }
         }
 
