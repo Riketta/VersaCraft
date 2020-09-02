@@ -15,10 +15,18 @@ namespace VersaCraft_Launcher
         private static Logger logger = Logger.GetLogger();
 
 
-        //static readonly string host = "versalita.net";
-        static readonly string host = "127.0.0.1";
+        public enum ClientState
+        {
+            Connecting,
+            Offline
+        }
+
+        public static ClientState State { get => state; private set => state = value; }
+        static ClientState state = ClientState.Connecting;
+
         static TcpClient client = null;
         static NetworkStream stream = null;
+
 
         public Client()
         {
@@ -31,13 +39,15 @@ namespace VersaCraft_Launcher
 
         public async static void Connect()
         {
-            logger.Info("Connecting to server");
+            logger.Info("Connecting to server {0}:{1}", Config.Instance.Address, Protocol.Port);
 
-            while (true)
+            for (int i = 0; i < 5; i++)
             {
                 try
                 {
-                    client = new TcpClient(host, Protocol.Port);
+                    State = ClientState.Connecting;
+                    
+                    client = new TcpClient(Config.Instance.Address, Protocol.Port);
                     stream = client.GetStream();
 
                     await Task.Run(() =>
@@ -47,18 +57,20 @@ namespace VersaCraft_Launcher
                             byte[] packetBuffer = Protocol.ReceivePacket(stream);
                             Packet packet = Protocol.PacketDeserialize(packetBuffer);
 
-                            logger.Info("Packet received: {0}", packet.Type.ToString());
+                            logger.Debug("Packet received: {0}", packet.Type.ToString());
                             PacketProcessing(packet, client);
                         }
                     });
-
-                    logger.Info("Reconnecting to server");
                 }
                 catch (Exception ex)
                 {
+                    logger.Info("Reconnecting to server with try #{0}", i + 1);
                     logger.Error(ex.ToString());
                 }
             }
+
+            logger.Warn("Working in offline mode");
+            State = ClientState.Offline;
         }
 
         static void PacketProcessing(Packet packet, TcpClient client)
@@ -96,7 +108,7 @@ namespace VersaCraft_Launcher
         /// <param name="session"></param>
         /// <param name="username"></param>
         /// <param name="password"></param>
-        /// <param name="hashed">true - password already hashed, use it directly</param>
+        /// <param name="hashed">true - <paramref name="password"/> already hashed, use it directly</param>
         public static void RequestAuth(string session, string username, string password, bool hashed = false)
         {
             AuthData authData = new AuthData()

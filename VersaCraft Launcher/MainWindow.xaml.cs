@@ -46,21 +46,6 @@ namespace VersaCraft_Launcher
             password.Password = Config.Instance.PassHash;
             isSavingPassword.IsChecked = Config.Instance.IsSavingPassword;
             ControlsManager.UpdateClientsComboBox(Config.Instance.Clients);
-
-            logger.Info("Connecting to server");
-            Client.Connect();
-
-            logger.Info("Waiting for connection");
-            while (!Client.IsConnected()) { }
-
-            logger.Info("Requesting launcher update");
-            Client.RequestLauncherUpdate();
-
-            logger.Info("Requesting clients data");
-            Client.RequestClients();
-
-            logger.Info("Requesting clients files data");
-            Client.RequestClientsFiles();
         }
 
         private void WebBrowser_Initialized(object sender, EventArgs e)
@@ -79,7 +64,7 @@ namespace VersaCraft_Launcher
 
         private void Password_PasswordChanged(object sender, RoutedEventArgs e)
         {
-            isSavingPassword.IsChecked = false;
+            //isSavingPassword.IsChecked = false;
         }
 
         private void Password_GotFocus(object sender, RoutedEventArgs e)
@@ -89,36 +74,72 @@ namespace VersaCraft_Launcher
 
         private void Login_Click(object sender, RoutedEventArgs e)
         {
-            if (Client.IsConnected() && (string.IsNullOrEmpty(username.Text) || string.IsNullOrEmpty(password.Password)))
+            if (Client.IsConnected())
             {
-                logger.Warn("No login data entered to request auth");
-                return;
+                if (string.IsNullOrEmpty(username.Text) || string.IsNullOrEmpty(password.Password))
+                {
+                    logger.Warn("No login data entered to request auth");
+                    ControlsManager.SetStatus("Enter login and password!");
+                    return;
+                }
+
+                string clientName = ControlsManager.GetSelectedClientName();
+                if (string.IsNullOrEmpty(clientName))
+                {
+                    logger.Error("Client not selected!");
+                    ControlsManager.SetStatus("Select client!");
+                    return;
+                }
+
+                logger.Info("Requesting client update");
+                ClientsData.Client client = Config.Instance.Clients.Clients.First(c => c.Name == clientName);
+                UpdateManager.UpdateClient(client);
+
+                logger.Info("Updating config with current login data");
+                Config.Instance.Username = username.Text;
+                // if we required to save hash and doing it first time (no currently password saved), check to prevent hashing hash
+                if (string.IsNullOrEmpty(Config.Instance.PassHash))
+                    Config.Instance.PassHash = CryptoUtils.CalculateStringVersaHash(password.Password);
+
+                string session = CryptoUtils.CalculateStringSHA1(string.Format("{0}_{1}_{2}", Config.Instance.Username, DateTime.Now.Ticks.ToString(), CryptoUtils.GetComputerSid().ToString()));
+
+                logger.Info("Requesting auth");
+                ControlsManager.SetStatus("Requesting auth...");
+                Client.RequestAuth(session, username.Text, Config.Instance.IsSavingPassword ? Config.Instance.PassHash : password.Password, Config.Instance.IsSavingPassword);
             }
-
-            string clientName = ControlsManager.GetSelectedClientName();
-            if (string.IsNullOrEmpty(clientName))
-            {
-                logger.Error("Client not selected!");
-                return;
-            }
-
-            logger.Info("Requesting client update");
-            ClientsData.Client client = Config.Instance.Clients.Clients.First(c => c.Name == clientName);
-            UpdateManager.UpdateClient(client);
-
-            logger.Info("Updating config with current login data");
-            Config.Instance.Username = username.Text;
-            if (string.IsNullOrEmpty(Config.Instance.PassHash)) // if we required to save hash and doing it first time (no currently password saved)
-                Config.Instance.PassHash = CryptoUtils.CalculateStringVersaHash(password.Password);
-
-            string session = CryptoUtils.CalculateStringSHA1(string.Format("{0}_{1}_{2}", Config.Instance.Username, DateTime.Now.Ticks.ToString(), CryptoUtils.GetComputerSid().ToString()));
-
-            logger.Info("Requesting auth");
-            Client.RequestAuth(session, username.Text, Config.Instance.IsSavingPassword ? Config.Instance.PassHash : password.Password, Config.Instance.IsSavingPassword);
         }
 
         private void MainForm_Loaded(object sender, RoutedEventArgs e)
         {
+            ControlsManager.DisableLoginButton();
+
+            Task.Run(() =>
+            {
+                logger.Info("Connecting to server");
+                ControlsManager.SetStatus("Connecting to auth&login server...");
+                Client.Connect();
+
+                logger.Info("Waiting for connection");
+                ControlsManager.SetStatus("Waiting for connection...");
+                while (!Client.IsConnected() && Client.State != Client.ClientState.Offline) { }
+
+                if (Client.IsConnected())
+                {
+                    logger.Info("Requesting launcher update");
+                    Client.RequestLauncherUpdate();
+
+                    logger.Info("Requesting clients data");
+                    Client.RequestClients();
+
+                    logger.Info("Requesting clients files data");
+                    Client.RequestClientsFiles();
+                }
+                else
+                    ControlsManager.SetLoginButtonOffline();
+
+                ControlsManager.SetStatus("Ready");
+                ControlsManager.EnableLoginButton();
+            });
         }
 
         private void IsSavingPassword_Checked(object sender, RoutedEventArgs e)

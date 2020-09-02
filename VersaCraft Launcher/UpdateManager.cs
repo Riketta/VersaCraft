@@ -77,10 +77,10 @@ namespace VersaCraft_Launcher
                 filesToUpdate.Add(remoteFile.Filepath);
             }
 
-            if (filesToUpdate.Count > 0)
+            if (filesToUpdate.Count > 0) // lock button untill everything downloaded
                 ControlsManager.EnableLoginButtonAfter(filesToUpdate.Count);
             else
-                ControlsManager.EnableLoginButton(true);
+                ControlsManager.EnableLoginButton();
 
             // TODO: prepare progress bar
 
@@ -105,7 +105,7 @@ namespace VersaCraft_Launcher
             using (FileStream stream = File.OpenWrite(filepath))
                 stream.Write(fileData.File, 0, fileData.File.Length);
 
-            ControlsManager.EnableLoginButton();
+            ControlsManager.EnableLoginButtonAfter();
         }
     }
 }

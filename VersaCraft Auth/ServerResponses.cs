@@ -19,7 +19,7 @@ namespace VersaCraft_Auth
         public static void AcceptAuth(AuthData authData, TcpClient client)
         {
             logger.Debug("Received auth data from {0}. Session: {3}; Username: \"{1}\"; PassHash: {2}", ((IPEndPoint)client.Client.RemoteEndPoint).ToString(), authData.Username, authData.PassHash, authData.Session);
-            // TODO: use SessionManager
+            SessionManager.AddSession(authData, client);
         }
 
         public static void SendLauncher(string version, TcpClient client)

@@ -52,6 +52,8 @@ namespace VersaCraft_Auth
                         //logger.Debug("Packet {0} received from client {1}", packet.Type.ToString(), ((IPEndPoint)client.Client.RemoteEndPoint).ToString());
                         PacketProcessing(packet, client);
                     }
+
+                    logger.Info("Client {0} disconnected.", ((IPEndPoint)client?.Client?.RemoteEndPoint).ToString());
                 }
             }
             catch (Exception ex)

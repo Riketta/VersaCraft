@@ -36,21 +36,34 @@ namespace VersaCraft_Auth
         }
 
         /// <summary>
-        /// Путь к папке с данными обновлений
+        /// Path to folder with updates.
         /// </summary>
         public static readonly string UpdatesFolder = @"updates";
 
         /// <summary>
-        /// Путь к актуальной версии лаунчера
+        /// Path to actual launcher executable relatively <see cref="UpdatesFolder"/>.
         /// </summary>
         private static readonly string launcherFile = Path.Combine(UpdatesFolder, @"launcher.exe");
-        //private static readonly string launcherFile = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), @"Updates\Launcher.exe");
 
         /// <summary>
-        /// Путь к файлу со списком клиентов в формате Nx[client_path:client_name:client_url;] (см. реализацию <see cref="ClientsData.ToString"/>)
+        /// Path to clients list. For format details check <see cref="ClientsData.ToString"/>).
         /// </summary>
         private static readonly string clientsListFile = Path.Combine(UpdatesFolder, @"clients.txt");
-        //private static readonly string clientsListFile = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), @"Updates\Clients.txt");
+
+        /// <summary>
+        /// Session time to live in seconds before clean-up.
+        /// </summary>
+        public static readonly int SessionTTL = 10 * 60;
+
+        /// <summary>
+        /// Interval for cleaning expired sessions timer in ms.
+        /// </summary>
+        public static readonly int SessinCleanupInterval = 60 * 1000;
+
+        /// <summary>
+        /// Sessions limitation per ip address to prevent possible DoS attacks to server.
+        /// </summary>
+        public static readonly int SessionsLimitPerAddress = 30;
 
 
         public byte[] LauncherData { get => launcherData; }
@@ -79,7 +92,7 @@ namespace VersaCraft_Auth
         }
 
         /// <summary>
-        /// Кэширует файл лаунчера в память и фиксирует его версию
+        /// Caching launcher file into memory and fixates its version.
         /// </summary>
         public void LoadLauncher()
         {
@@ -96,7 +109,7 @@ namespace VersaCraft_Auth
         }
 
         /// <summary>
-        /// Считывает данные из файла со списком клиентов о названии клиента, пути к нему и выделенной странице
+        /// Updates available clients data for downloading and updating.
         /// </summary>
         public void LoadClientVersions()
         {
@@ -122,7 +135,7 @@ namespace VersaCraft_Auth
         }
 
         /// <summary>
-        /// Генерирует список всех файлов и их хэшей всех клиентов, требует наличия списка версий <see cref="Clients"/>
+        /// Generates list of all clients files and their hashes. Requires <see cref="Clients"/> to be set. Call <see cref="LoadClientVersions"/> before.
         /// </summary>
         public void LoadClientFilesData()
         {

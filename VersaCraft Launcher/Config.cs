@@ -89,13 +89,13 @@ namespace VersaCraft_Launcher
         private string username;
 
         /// <summary>
-        /// Stores password hash. If <see cref="IsSavingPassword"/> set to false then auto self cleanup hash data in local storage.
+        /// Stores password hash. If <see cref="IsSavingPassword"/> set to false then auto wipe stored password hash and return "".
         /// </summary>
         public string PassHash
         {
             get
             {
-                // don't load hash if it for some reason stored in config without rule for it
+                // don't load hash if it for some reason stored in config without rule for it and also wipe it
                 if (!IsSavingPassword)
                 {
                     PassHash = "";
@@ -112,13 +112,8 @@ namespace VersaCraft_Launcher
                 {
                     if (IsSavingPassword)
                     {
-                        ini.WriteValue(LauncherSection, nameof(pass_hash), value);
-                        pass_hash = value;
-                    }
-                    else
-                    {
-                        ini.WriteValue(LauncherSection, nameof(pass_hash), "");
-                        pass_hash = "";
+                        ini.WriteValue(LauncherSection, nameof(pass_hash), IsSavingPassword ? value : "");
+                        pass_hash = IsSavingPassword ? value : "";
                     }
                 }
                 else
@@ -128,7 +123,7 @@ namespace VersaCraft_Launcher
         private string pass_hash;
 
         /// <summary>
-        /// Stores data about requirenment to save password hash. If set to false auto cleanup <see cref="PassHash"/> hash data in local storage.
+        /// Represents necessity to save password hash. If set to false auto cleanup <see cref="PassHash"/> hash data in local storage.
         /// </summary>
         public bool IsSavingPassword
         {
@@ -140,12 +135,12 @@ namespace VersaCraft_Launcher
             }
             set
             {
+                if (!value) PassHash = ""; // force clean-up possibly already stored hash
+                
                 if (ini != null)
                 {
                     ini.WriteValue(LauncherSection, nameof(is_saving_password), value);
                     is_saving_password = value;
-
-                    if (!value) PassHash = ""; // cleanup already saved hash
                 }
                 else
                     logger.Error("Failed to write data to config! Field: {0}", nameof(is_saving_password));
@@ -195,6 +190,17 @@ namespace VersaCraft_Launcher
         }
         private string jvm_arguments;
 
+        public string Address
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(address))
+                    address = ini.GetString(LauncherSection, nameof(address), "versalita.net");
+                return address;
+            }
+        }
+        private string address;
+
         public Config Load()
         {
             logger.Debug("Creating INI reader");
@@ -210,6 +216,7 @@ namespace VersaCraft_Launcher
             _ = IsSavingPassword;
             _ = SelectedClient;
             _ = JVMArguments;
+            _ = Address;
             logger.Debug(ToString());
 
             return this;
@@ -238,6 +245,7 @@ namespace VersaCraft_Launcher
             value += string.Format($"{nameof(is_saving_password)}: \"{is_saving_password}\"; ");
             value += string.Format($"{nameof(selected_client)}: \"{selected_client}\"; ");
             value += string.Format($"{nameof(jvm_arguments)}: \"{jvm_arguments}\"; ");
+            value += string.Format($"{nameof(address)}: \"{address}\"; ");
 
             return value;
         }

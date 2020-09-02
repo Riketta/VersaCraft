@@ -26,6 +26,9 @@ namespace VersaCraft_Auth
                 logger.Info("Loading config");
                 Config.Instance.Load();
 
+                logger.Info("Starting session cleaner");
+                SessionManager.StartSessionCleaner();
+
                 logger.Info("Starting server");
                 Server.Start(); // blocking thread
                 Server.Stop();

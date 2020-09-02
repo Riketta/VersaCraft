@@ -89,24 +89,40 @@ namespace VersaCraft_Launcher
             Application.Current.Dispatcher.Invoke(() => { loginButton.IsEnabled = false; });
         }
 
-        public static void EnableLoginButton(bool force = false)
+        public static void EnableLoginButton()
         {
-            if (!force) filesRemaining--;
-
             if (loginButton == null)
             {
                 logger.Warn("Login button not assigned! Can't enable.");
                 return;
             }
 
-            if (filesRemaining == 0 || force)
-                Application.Current.Dispatcher.Invoke(() => { loginButton.IsEnabled = true; });
+            Application.Current.Dispatcher.Invoke(() => { loginButton.IsEnabled = true; });
         }
 
-        internal static void EnableLoginButtonAfter(int fileCount)
+        public static void EnableLoginButtonAfter()
+        {
+            filesRemaining--;
+
+            if (filesRemaining == 0)
+                EnableLoginButton();
+        }
+
+        public static void EnableLoginButtonAfter(int fileCount)
         {
             if (fileCount > 0)
                 filesRemaining = fileCount;
+        }
+
+        public static void SetLoginButtonOffline()
+        {
+            if (loginButton == null)
+            {
+                logger.Warn("Login button not assigned! Can't rename.");
+                return;
+            }
+
+            Application.Current.Dispatcher.Invoke(() => { loginButton.Content = "Offline"; });
         }
     }
 }
