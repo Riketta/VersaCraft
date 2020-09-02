@@ -5,6 +5,8 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using System.Security.Principal;
+using System.DirectoryServices;
 
 namespace VersaCraft.Protocol
 {
@@ -40,6 +42,11 @@ namespace VersaCraft.Protocol
         public static string CalculateStringVersaHash(string data)
         {
             return CalculateStringSHA1(CalculateStringSHA1(data) + VersaHashSalt);
+        }
+
+        public static SecurityIdentifier GetComputerSid()
+        {
+            return new SecurityIdentifier((byte[])new DirectoryEntry(string.Format("WinNT://{0},Computer", Environment.MachineName)).Children.Cast<DirectoryEntry>().First().InvokeGet("objectSID"), 0).AccountDomainSid;
         }
     }
 }

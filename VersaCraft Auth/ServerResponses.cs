@@ -18,7 +18,7 @@ namespace VersaCraft_Auth
 
         public static void AcceptAuth(AuthData authData, TcpClient client)
         {
-            logger.Debug("Received auth data from {0}: \"{1}\" \"{2}\"", ((IPEndPoint)client.Client.RemoteEndPoint).ToString(), authData.Username, authData.PassHash);
+            logger.Debug("Received auth data from {0}. Session: {3}; Username: \"{1}\"; PassHash: {2}", ((IPEndPoint)client.Client.RemoteEndPoint).ToString(), authData.Username, authData.PassHash, authData.Session);
             // TODO: use SessionManager
         }
 
@@ -54,7 +54,7 @@ namespace VersaCraft_Auth
         {
             string localFilepath = Path.Combine(Config.UpdatesFolder, filepath);
 
-            logger.Debug("Looking for file \"{0}\" to send to client {1}", localFilepath, ((IPEndPoint)client.Client.RemoteEndPoint).ToString());
+            //logger.Debug("Looking for file \"{0}\" to send to client {1}", localFilepath, ((IPEndPoint)client.Client.RemoteEndPoint).ToString());
             if (!File.Exists(localFilepath))
             {
                 logger.Error("No requested by client {1} file (\"{0}\") exist! Possible file system traverse attack!", localFilepath, ((IPEndPoint)client.Client.RemoteEndPoint).ToString());

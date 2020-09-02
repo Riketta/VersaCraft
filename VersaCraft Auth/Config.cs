@@ -53,17 +53,17 @@ namespace VersaCraft_Auth
         //private static readonly string clientsListFile = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), @"Updates\Clients.txt");
 
 
-        byte[] launcherData = null;
         public byte[] LauncherData { get => launcherData; }
+        byte[] launcherData = null;
 
-        string launcherVersion = null;
         public string LauncherVersion { get => launcherVersion; }
+        string launcherVersion = null;
 
-        ClientsData clients;
         public ClientsData Clients { get => clients; }
+        ClientsData clients;
 
-        ClientsFilesData clientsFiles;
         public ClientsFilesData ClientsFiles { get => clientsFiles; }
+        ClientsFilesData clientsFiles;
 
 
         public void Load()
@@ -74,7 +74,7 @@ namespace VersaCraft_Auth
             logger.Info("Caching client versions");
             LoadClientVersions();
 
-            logger.Info("Caching clients files");
+            logger.Info("Caching files of {0} client(s)", Config.Instance.Clients.Clients.Length);
             LoadClientFilesData();
         }
 
@@ -107,42 +107,12 @@ namespace VersaCraft_Auth
                 return;
             }
 
-            List<ClientsData.Client> newClients = new List<ClientsData.Client>();
+            string clientsRaw = File.ReadAllText(clientsListFile);
+            List<ClientsData.Client> newClients = new List<ClientsData.Client>(ClientsData.Parse(clientsRaw));
 
-            string versionsRaw = File.ReadAllText(clientsListFile);
-            // client_path:client_name:client_url;client_path:client_name:client_url;...
-            string[] rawClients = versionsRaw.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
-            logger.Info("Caching {0} clients", rawClients.Length);
-
-            foreach (var rawClient in rawClients)
-            {
-                string[] clientFields = rawClient.Trim().Split(':'); // care with trim
-                string path = clientFields[0];
-                string name = clientFields[1];
-                string url = clientFields[2];
-
-                if (string.IsNullOrEmpty(path))
-                {
-                    logger.Error("Found client without path!");
-                    continue;
-                }
-
-                ClientsData.Client client = new ClientsData.Client()
-                {
-                    Path = path,
-                    Name = !string.IsNullOrEmpty(name) ? name : path, // not combined path!
-                    URL = !string.IsNullOrEmpty(url) ? url : "",
-                };
-
-                if (newClients.Exists(c => c.Name == client.Name) || newClients.Exists(c => c.Path == client.Path))
-                {
-                    logger.Error("Client with same name or path already added! Skipping this one: \"{0}\"; \"{1}\"", client.Name, client.Path);
-                    continue;
-                }
-                
-                newClients.Add(client);
+            logger.Info("Caching {0} clients", newClients.Count);
+            foreach (var client in newClients)
                 logger.Info("Added new client \"{0}\" with path \"{1}\" and URL \"{2}\"", client.Name, client.Path, client.URL);
-            }
 
             ClientsData clientsData = new ClientsData()
             {
@@ -179,7 +149,7 @@ namespace VersaCraft_Auth
                         Hash = CryptoUtils.CalculateFileMD5(filepath),
                     };
 
-                    logger.Debug("Added file [{0}] with hash {1}", file.Filepath, file.Hash);
+                    //logger.Debug("Added file [{0}] with hash {1}", file.Filepath, file.Hash);
                     newFiles.Add(file);
                 }
             }

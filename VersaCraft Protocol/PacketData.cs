@@ -15,6 +15,7 @@ namespace VersaCraft.Protocol
     [StructLayout(LayoutKind.Sequential, Pack = 1, CharSet = CharSet.Ansi)]
     public struct AuthData : PacketData
     {
+        public string Session;
         public string Username;
         public string PassHash;
     }
@@ -47,6 +48,38 @@ namespace VersaCraft.Protocol
         /// Список клиентов на сервере обновлений.
         /// </summary>
         public Client[] Clients;
+
+        public static Client[] Parse(string clients)
+        {
+            List<Client> newClients = new List<Client>();
+
+            string[] rawClients = clients.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
+            foreach (var rawClient in rawClients)
+            {
+                string[] clientFields = rawClient.Trim().Split(':'); // care with trim
+                string path = clientFields[0];
+                string name = clientFields[1];
+                string url = clientFields[2];
+
+                if (string.IsNullOrEmpty(path)) // path can't be empty as primary key
+                    continue;
+
+                Client client = new Client()
+                {
+                    Path = path,
+                    Name = !string.IsNullOrEmpty(name) ? name : path, // not combined path with server folder for updates!
+                    URL = !string.IsNullOrEmpty(url) ? url : "",
+                };
+
+                // Can't be more than one unique identifiers is same storage
+                if (newClients.Exists(c => c.Name == client.Name) || newClients.Exists(c => c.Path == client.Path))
+                    continue;
+
+                newClients.Add(client);
+            }
+
+            return newClients.ToArray();
+        }
 
         public override string ToString()
         {

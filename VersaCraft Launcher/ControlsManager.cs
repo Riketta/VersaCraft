@@ -57,9 +57,11 @@ namespace VersaCraft_Launcher
                 return;
             }
             
-            Application.Current.Dispatcher.Invoke(() => { clients.ItemsSource = clientsData.Clients.Select(c => c.Name); });
-
-           // TODO: reselect known if available
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                clients.ItemsSource = clientsData.Clients.Select(c => c.Name);
+                clients.SelectedItem = clientsData.Clients.FirstOrDefault(c => c.Name == Config.Instance.SelectedClient).Name;
+            });
         }
 
         public static string GetSelectedClientName()

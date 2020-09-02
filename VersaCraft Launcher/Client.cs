@@ -31,15 +31,16 @@ namespace VersaCraft_Launcher
 
         public async static void Connect()
         {
+            logger.Info("Connecting to server");
+
             while (true)
             {
-                logger.Info("Connecting to server");
-                client = new TcpClient(host, Protocol.Port);
-                stream = client.GetStream();
-
-                await Task.Run(() =>
+                try
                 {
-                    try
+                    client = new TcpClient(host, Protocol.Port);
+                    stream = client.GetStream();
+
+                    await Task.Run(() =>
                     {
                         while (IsConnected())
                         {
@@ -49,14 +50,14 @@ namespace VersaCraft_Launcher
                             logger.Info("Packet received: {0}", packet.Type.ToString());
                             PacketProcessing(packet, client);
                         }
-                    }
-                    catch (Exception ex)
-                    {
-                        logger.Error(ex.ToString());
-                    }
-                });
+                    });
 
-                logger.Info("Reconnecting to server");
+                    logger.Info("Reconnecting to server");
+                }
+                catch (Exception ex)
+                {
+                    logger.Error(ex.ToString());
+                }
             }
         }
 
@@ -89,12 +90,20 @@ namespace VersaCraft_Launcher
             }
         }
 
-        public static void RequestAuth(string username, string password)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="session"></param>
+        /// <param name="username"></param>
+        /// <param name="password"></param>
+        /// <param name="hashed">true - password already hashed, use it directly</param>
+        public static void RequestAuth(string session, string username, string password, bool hashed = false)
         {
             AuthData authData = new AuthData()
             {
+                Session = session,
                 Username = username,
-                PassHash = CryptoUtils.CalculateStringVersaHash(password),
+                PassHash = hashed ? password : CryptoUtils.CalculateStringVersaHash(password),
             };
 
             Packet packet = Protocol.FormPacket(PacketType.LauncherRequestAuth, authData);

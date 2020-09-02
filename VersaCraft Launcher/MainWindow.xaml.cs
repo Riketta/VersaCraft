@@ -37,45 +37,16 @@ namespace VersaCraft_Launcher
             ControlsManager.SetClientsComboBox(clients);
             ControlsManager.SetStatusLabel(status);
             ControlsManager.SetLoginButton(login);
-        }
 
-        private void WebBrowser_Initialized(object sender, EventArgs e)
-        {
-            //((WebBrowser)sender).CanGoForward;
-        }
+            logger.Info("Loading config");
+            Config.Instance.Load();
 
-        private void Username_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            password.Password = "";
-        }
+            logger.Info("Preparing UI");
+            username.Text = Config.Instance.Username;
+            password.Password = Config.Instance.PassHash;
+            isSavingPassword.IsChecked = Config.Instance.IsSavingPassword;
+            ControlsManager.UpdateClientsComboBox(Config.Instance.Clients);
 
-        private void Login_Click(object sender, RoutedEventArgs e)
-        {
-            string clientName = ControlsManager.GetSelectedClientName();
-            if (string.IsNullOrEmpty(clientName))
-            {
-                logger.Error("Client not selected!");
-                return;
-            }
-
-            logger.Info("Requesting client update");
-            ClientsData.Client client = Config.Instance.Clients.Clients.First(c => c.Name == clientName);
-            UpdateManager.UpdateClient(client);
-
-            if (string.IsNullOrEmpty(username.Text) || string.IsNullOrEmpty(password.Password))
-            {
-                logger.Warn("No login data entered to request auth");
-                return;
-            }
-            else
-            {
-                logger.Info("Requesting auth");
-                Client.RequestAuth(username.Text, password.Password);
-            }
-        }
-
-        private void MainForm_Loaded(object sender, RoutedEventArgs e)
-        {
             logger.Info("Connecting to server");
             Client.Connect();
 
@@ -90,6 +61,87 @@ namespace VersaCraft_Launcher
 
             logger.Info("Requesting clients files data");
             Client.RequestClientsFiles();
+        }
+
+        private void WebBrowser_Initialized(object sender, EventArgs e)
+        {
+            //((WebBrowser)sender).CanGoForward;
+        }
+
+        private void Username_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            password.Password = "";
+        }
+        private void Username_GotFocus(object sender, RoutedEventArgs e)
+        {
+            username.Dispatcher.BeginInvoke(new Action(delegate { username.SelectAll(); }), System.Windows.Threading.DispatcherPriority.Input);
+        }
+
+        private void Password_PasswordChanged(object sender, RoutedEventArgs e)
+        {
+            isSavingPassword.IsChecked = false;
+        }
+
+        private void Password_GotFocus(object sender, RoutedEventArgs e)
+        {
+            password.Dispatcher.BeginInvoke(new Action(delegate { password.SelectAll(); }), System.Windows.Threading.DispatcherPriority.Input);
+        }
+
+        private void Login_Click(object sender, RoutedEventArgs e)
+        {
+            if (Client.IsConnected() && (string.IsNullOrEmpty(username.Text) || string.IsNullOrEmpty(password.Password)))
+            {
+                logger.Warn("No login data entered to request auth");
+                return;
+            }
+
+            string clientName = ControlsManager.GetSelectedClientName();
+            if (string.IsNullOrEmpty(clientName))
+            {
+                logger.Error("Client not selected!");
+                return;
+            }
+
+            logger.Info("Requesting client update");
+            ClientsData.Client client = Config.Instance.Clients.Clients.First(c => c.Name == clientName);
+            UpdateManager.UpdateClient(client);
+
+            logger.Info("Updating config with current login data");
+            Config.Instance.Username = username.Text;
+            if (string.IsNullOrEmpty(Config.Instance.PassHash)) // if we required to save hash and doing it first time (no currently password saved)
+                Config.Instance.PassHash = CryptoUtils.CalculateStringVersaHash(password.Password);
+
+            string session = CryptoUtils.CalculateStringSHA1(string.Format("{0}_{1}_{2}", Config.Instance.Username, DateTime.Now.Ticks.ToString(), CryptoUtils.GetComputerSid().ToString()));
+
+            logger.Info("Requesting auth");
+            Client.RequestAuth(session, username.Text, Config.Instance.IsSavingPassword ? Config.Instance.PassHash : password.Password, Config.Instance.IsSavingPassword);
+        }
+
+        private void MainForm_Loaded(object sender, RoutedEventArgs e)
+        {
+        }
+
+        private void IsSavingPassword_Checked(object sender, RoutedEventArgs e)
+        {
+            IsSavingPassword_Switched(sender, e);
+        }
+
+        private void IsSavingPassword_Unchecked(object sender, RoutedEventArgs e)
+        {
+            IsSavingPassword_Switched(sender, e);
+            password.Clear();
+        }
+
+        private void IsSavingPassword_Switched(object sender, RoutedEventArgs e)
+        {
+            var cb = ((CheckBox)sender).IsChecked;
+            if (cb.HasValue)
+                Config.Instance.IsSavingPassword = cb.Value; // that will also cleanup PassHash if required (if false)
+        }
+
+        private void Clients_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            Config.Instance.SelectedClient = (string)((ComboBox)sender).SelectedItem;
         }
     }
 }
