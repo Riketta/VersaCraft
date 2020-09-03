@@ -13,10 +13,8 @@ namespace VersaCraft_Launcher
 {
     public class ControlsManager
     {
-        private static Logger logger = Logger.GetLogger();
+        private static readonly Logger logger = Logger.GetLogger();
 
-
-        static int filesRemaining = 0;
 
         static Label status = null;
         static ComboBox clients = null;
@@ -36,7 +34,6 @@ namespace VersaCraft_Launcher
         {
             loginButton = login;
         }
-
 
         public static void SetStatus(string text)
         {
@@ -98,20 +95,6 @@ namespace VersaCraft_Launcher
             }
 
             Application.Current.Dispatcher.Invoke(() => { loginButton.IsEnabled = true; });
-        }
-
-        public static void EnableLoginButtonAfter()
-        {
-            filesRemaining--;
-
-            if (filesRemaining == 0)
-                EnableLoginButton();
-        }
-
-        public static void EnableLoginButtonAfter(int fileCount)
-        {
-            if (fileCount > 0)
-                filesRemaining = fileCount;
         }
 
         public static void SetLoginButtonOffline()

@@ -14,7 +14,7 @@ namespace VersaCraft_Auth
 {
     class Program
     {
-        private static Logger logger = Logger.GetLogger();
+        private static readonly Logger logger = Logger.GetLogger();
 
 
         static void Main(string[] args)

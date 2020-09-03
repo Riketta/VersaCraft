@@ -24,7 +24,7 @@ namespace VersaCraft_Launcher
     /// </summary>
     public partial class MainWindow : Window
     {
-        private static Logger logger = Logger.GetLogger();
+        private static readonly Logger logger = Logger.GetLogger();
 
         public MainWindow()
         {
@@ -72,7 +72,7 @@ namespace VersaCraft_Launcher
             password.Dispatcher.BeginInvoke(new Action(delegate { password.SelectAll(); }), System.Windows.Threading.DispatcherPriority.Input);
         }
 
-        private void Login_Click(object sender, RoutedEventArgs e)
+        private async void Login_Click(object sender, RoutedEventArgs e)
         {
             if (Client.IsConnected())
             {
@@ -91,13 +91,18 @@ namespace VersaCraft_Launcher
                     return;
                 }
 
+                ControlsManager.DisableLoginButton();
                 logger.Info("Requesting client update");
                 ClientsData.Client client = Config.Instance.Clients.Clients.First(c => c.Name == clientName);
-                UpdateManager.UpdateClient(client);
+
+                await UpdateManager.UpdateClient(client);
+                logger.Info("Waiting client updates to finish");
+                await Task.Run(() => { while (!UpdateManager.IsUpdateDone()) { } });
+                logger.Info("Client updating done");
 
                 logger.Info("Updating config with current login data");
                 Config.Instance.Username = username.Text;
-                
+
                 string passHash = Config.Instance.PassHash == password.Password ? Config.Instance.PassHash : CryptoUtils.CalculateStringVersaHash(password.Password);
                 Config.Instance.PassHash = passHash;
 
@@ -106,6 +111,17 @@ namespace VersaCraft_Launcher
                 logger.Info("Requesting auth");
                 ControlsManager.SetStatus("Requesting auth...");
                 Client.RequestAuth(session, username.Text, passHash);
+
+                logger.Info("Launching Minecraft");
+                ControlsManager.SetStatus("Launching Minecraft...");
+                WindowState = WindowState.Minimized;
+                var minecraft = MinecraftLauncher.Start(username.Text, session, client.Path);
+
+                if (Config.Instance.WindowedFullscreen)
+                    MinecraftLauncher.EnableWindowedFullscreen(minecraft);
+
+                logger.Info("All jobs done");
+                Application.Current.Shutdown();
             }
         }
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,7 +11,7 @@ namespace VersaCraft_Launcher
 {
     class Config
     {
-        private static Logger logger = Logger.GetLogger();
+        private static readonly Logger logger = Logger.GetLogger();
 
 
         private static Config instance = null;
@@ -166,6 +167,27 @@ namespace VersaCraft_Launcher
         }
         private string selected_client;
 
+        public bool WindowedFullscreen
+        {
+            get
+            {
+                if (!windowed_fullscreen.HasValue)
+                    windowed_fullscreen = ini.GetBoolean(LauncherSection, nameof(windowed_fullscreen), false);
+                return windowed_fullscreen.Value;
+            }
+            set
+            {
+                if (ini != null)
+                {
+                    ini.WriteValue(LauncherSection, nameof(windowed_fullscreen), value);
+                    windowed_fullscreen = value;
+                }
+                else
+                    logger.Error("Failed to write data to config! Field: {0}", nameof(windowed_fullscreen));
+            }
+        }
+        private bool? windowed_fullscreen;
+
         public string JVMArguments // TODO: bind per client (?)
         {
             get
@@ -195,15 +217,34 @@ namespace VersaCraft_Launcher
                     address = ini.GetString(LauncherSection, nameof(address), "versalita.net");
                 return address;
             }
+            private set
+            {
+                if (ini != null)
+                {
+                    ini.WriteValue(LauncherSection, nameof(address), address);
+                    address = value;
+                }
+                else
+                    logger.Error("Failed to write data to config! Field: {0}", nameof(address));
+            }
         }
         private string address;
 
         public Config Load()
         {
             logger.Debug("Creating INI reader");
-            if (ini != null)
-                logger.Warn("INI reader already exists! Recreating.");
-            ini = new IniFile(ConfigPath);
+
+            if (!File.Exists(ConfigPath))
+            {
+                logger.Debug("No config found. Saving default.");
+                SaveDefault();
+            }
+            else
+            {
+                if (ini != null)
+                    logger.Warn("INI reader already exists! Recreating.");
+                ini = new IniFile(ConfigPath);
+            }
 
             logger.Debug("Reading config");
             // init (pre-read/cache) next values:
@@ -212,11 +253,26 @@ namespace VersaCraft_Launcher
             _ = PassHash;
             _ = IsSavingPassword;
             _ = SelectedClient;
+            _ = WindowedFullscreen;
             _ = JVMArguments;
             _ = Address;
             logger.Debug(ToString());
 
             return this;
+        }
+
+        public void SaveDefault()
+        {
+            ini = new IniFile(ConfigPath);
+
+            Clients = Clients;
+            Username = Username;
+            PassHash = PassHash;
+            IsSavingPassword = IsSavingPassword;
+            SelectedClient = SelectedClient;
+            WindowedFullscreen = WindowedFullscreen;
+            JVMArguments = JVMArguments;
+            Address = Address;
         }
 
         public void UpdateClients(ClientsData clientsData)
@@ -241,6 +297,7 @@ namespace VersaCraft_Launcher
             value += string.Format($"{nameof(pass_hash)}: \"{pass_hash}\"; ");
             value += string.Format($"{nameof(is_saving_password)}: \"{is_saving_password}\"; ");
             value += string.Format($"{nameof(selected_client)}: \"{selected_client}\"; ");
+            value += string.Format($"{nameof(windowed_fullscreen)}: \"{windowed_fullscreen}\"; ");
             value += string.Format($"{nameof(jvm_arguments)}: \"{jvm_arguments}\"; ");
             value += string.Format($"{nameof(address)}: \"{address}\"; ");
 

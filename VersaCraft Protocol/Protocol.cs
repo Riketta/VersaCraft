@@ -114,7 +114,7 @@ namespace VersaCraft.Protocol
             byte[] packetBuffer = PacketSerialize(packet);
 
             //Console.WriteLine("Sending packet with total size {0}", packetBuffer.Length);
-            client.GetStream().Write(packetBuffer, 0, packetBuffer.Length);
+            client.GetStream().WriteAsync(packetBuffer, 0, packetBuffer.Length);
         }
     }
 }

@@ -12,8 +12,8 @@ namespace VersaCraft.Logger
     {
         readonly string folder = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "logs");
 
+        readonly StreamWriter writer = null;
         static Logger logger = null;
-        StreamWriter writer = null;
 
         enum MessageType
         {
@@ -31,13 +31,15 @@ namespace VersaCraft.Logger
                 Directory.CreateDirectory(folder);
 
             string path = string.Format(Path.Combine(folder, "{0}_{1}.txt"), Assembly.GetEntryAssembly().EntryPoint.DeclaringType.Namespace, DateTime.Now.ToString("yyyyMMdd.HHmmss"));
-            writer = new StreamWriter(path, true);
-            writer.AutoFlush = true;
+            writer = new StreamWriter(path, true)
+            {
+                AutoFlush = true
+            };
         }
 
         public static Logger GetLogger()
         {
-            return logger != null ? logger : new Logger();
+            return logger ?? new Logger();
         }
 
         private void Write(string message, MessageType messageType)

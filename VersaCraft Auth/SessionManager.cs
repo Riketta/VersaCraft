@@ -13,7 +13,7 @@ namespace VersaCraft_Auth
 {
     class SessionManager
     {
-        private static Logger logger = Logger.GetLogger();
+        private static readonly Logger logger = Logger.GetLogger();
 
 
         private struct Session
@@ -24,8 +24,8 @@ namespace VersaCraft_Auth
             public string PassHash;
         }
 
-        static Timer cleanup = new Timer(Config.SessinCleanupInterval);
-        private static List<Session> sessions = new List<Session>();
+        static readonly List<Session> sessions = new List<Session>();
+        static readonly Timer cleanup = new Timer(Config.SessinCleanupInterval);
 
         public static void StartSessionCleaner()
         {

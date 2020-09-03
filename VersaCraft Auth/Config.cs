@@ -12,7 +12,7 @@ namespace VersaCraft_Auth
 {
     class Config
     {
-        private static Logger logger = Logger.GetLogger();
+        private static readonly Logger logger = Logger.GetLogger();
 
 
         private static Config instance = null;
@@ -154,7 +154,7 @@ namespace VersaCraft_Auth
 
                 foreach (var filepath in allFiles)
                 {
-                    string path = filepath.Split(new char[] { '\\' }, 2)[1]; // TODO: pretty scary way to fix path
+                    string path = filepath.Split(new char[] { '\\' }, 2)[1];
 
                     ClientsFilesData.File file = new ClientsFilesData.File()
                     {

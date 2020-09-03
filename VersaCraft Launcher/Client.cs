@@ -12,7 +12,7 @@ namespace VersaCraft_Launcher
 {
     class Client
     {
-        private static Logger logger = Logger.GetLogger();
+        private static readonly Logger logger = Logger.GetLogger();
 
 
         public enum ClientState
@@ -57,7 +57,7 @@ namespace VersaCraft_Launcher
                             byte[] packetBuffer = Protocol.ReceivePacket(stream);
                             Packet packet = Protocol.PacketDeserialize(packetBuffer);
 
-                            logger.Debug("Packet received: {0}", packet.Type.ToString());
+                            //logger.Debug("Packet received: {0}", packet.Type.ToString());
                             PacketProcessing(packet, client);
                         }
                     });

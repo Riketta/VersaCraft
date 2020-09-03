@@ -7,13 +7,13 @@ using System.Threading.Tasks;
 
 namespace VersaCraft.Protocol
 {
-    public interface PacketData
+    public interface IPacketData
     {
     }
 
     [Serializable]
     [StructLayout(LayoutKind.Sequential, Pack = 1, CharSet = CharSet.Ansi)]
-    public struct AuthData : PacketData
+    public struct AuthData : IPacketData
     {
         public string Session;
         public string Username;
@@ -22,30 +22,30 @@ namespace VersaCraft.Protocol
 
     [Serializable]
     [StructLayout(LayoutKind.Sequential, Pack = 1, CharSet = CharSet.Ansi)]
-    public struct ClientsData : PacketData
+    public struct ClientsData : IPacketData
     {
         [Serializable]
         [StructLayout(LayoutKind.Sequential, Pack = 1, CharSet = CharSet.Ansi)]
         public struct Client
         {
             /// <summary>
-            /// Путь к клиенту на сервере обновлений. Должно быть уникальным значением, основной ID клиента.
+            /// Path to client on update server. Unique value, primary key.
             /// </summary>
             public string Path;
 
             /// <summary>
-            /// Имя клиента, может быть пустым (тогда за имя считать путь). Должно быть уникальным значением.
+            /// Client name, can be empty, path used as name than. Unique value.
             /// </summary>
             public string Name;
 
             /// <summary>
-            /// Адрес индивидуальной страницы клиента, может быть пустым.
+            /// Individual client URL address. Can be blank.
             /// </summary>
             public string URL;
         }
 
         /// <summary>
-        /// Список клиентов на сервере обновлений.
+        /// Clients list on update server.
         /// </summary>
         public Client[] Clients;
 
@@ -93,32 +93,32 @@ namespace VersaCraft.Protocol
 
     [Serializable]
     [StructLayout(LayoutKind.Sequential, Pack = 1, CharSet = CharSet.Ansi)]
-    public struct ClientsFilesData : PacketData
+    public struct ClientsFilesData : IPacketData
     {
         [Serializable]
         [StructLayout(LayoutKind.Sequential, Pack = 1, CharSet = CharSet.Ansi)]
         public struct File
         {
             /// <summary>
-            /// Путь к файлу на сервере обновлений
+            /// Path to file on update server.
             /// </summary>
             public string Filepath;
 
             /// <summary>
-            /// Хэш клиента
+            /// File hash.
             /// </summary>
             public string Hash;
         }
 
         /// <summary>
-        /// Список файлов всех клиентов на сервере обновлений
+        /// List of all clients files on update server.
         /// </summary>
         public File[] Files;
     }
 
     [Serializable]
     [StructLayout(LayoutKind.Sequential, Pack = 1, CharSet = CharSet.Ansi)]
-    public struct FileData : PacketData
+    public struct FileData : IPacketData
     {
         public string Filepath;
         public int FileSize;

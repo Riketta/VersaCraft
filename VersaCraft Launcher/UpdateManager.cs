@@ -16,11 +16,13 @@ namespace VersaCraft_Launcher
 {
     class UpdateManager
     {
-        private static Logger logger = Logger.GetLogger();
+        private static readonly Logger logger = Logger.GetLogger();
 
 
         static readonly string updatedPostfix = "_update";
         static readonly string backupPostfix = "_backup";
+
+        static int filesRemainingToUpdate = 0;
 
         public static void SelfUpdate(byte[] launcher)
         {
@@ -54,11 +56,9 @@ namespace VersaCraft_Launcher
             Process.Start("cmd", args);
         }
 
-        public static void UpdateClient(ClientsData.Client client)
+        public static async Task UpdateClient(ClientsData.Client client)
         {
-            logger.Info("Updating client with path \"{0}\"", client.Path);
-            ControlsManager.DisableLoginButton();
-            
+            logger.Info("Updating client placed in \"{0}\"", client.Path);
             List<string> filesToUpdate = new List<string>();
          
             if (Config.Instance.ClientsFiles.Files == null)
@@ -67,25 +67,27 @@ namespace VersaCraft_Launcher
                 return;
             }
 
-            var remoteFiles = Config.Instance.ClientsFiles.Files.Where(f => f.Filepath.StartsWith(client.Path + Path.DirectorySeparatorChar) || f.Filepath.StartsWith(client.Path + Path.AltDirectorySeparatorChar));
-            foreach (var remoteFile in remoteFiles)
+            await Task.Run(() =>
             {
-                if (File.Exists(remoteFile.Filepath))
-                    if (CryptoUtils.CalculateFileMD5(remoteFile.Filepath) == remoteFile.Hash) // file exist and up to date, no reason to update it
-                        continue;
-                
-                filesToUpdate.Add(remoteFile.Filepath);
-            }
+                var remoteClientFiles = Config.Instance.ClientsFiles.Files.Where(f => f.Filepath.StartsWith(client.Path + Path.DirectorySeparatorChar) || f.Filepath.StartsWith(client.Path + Path.AltDirectorySeparatorChar));
+                foreach (var remoteFile in remoteClientFiles)
+                {
+                    if (File.Exists(remoteFile.Filepath))
+                        if (CryptoUtils.CalculateFileMD5(remoteFile.Filepath) == remoteFile.Hash) // file exist and up to date, no reason to update it
+                            continue;
 
-            if (filesToUpdate.Count > 0) // lock button untill everything downloaded
-                ControlsManager.EnableLoginButtonAfter(filesToUpdate.Count);
-            else
-                ControlsManager.EnableLoginButton();
+                    filesToUpdate.Add(remoteFile.Filepath);
+                }
 
-            // TODO: prepare progress bar
+                // TODO: remove not listed local files, except settings and saves
 
-            foreach (var file in filesToUpdate)
-                Client.RequestFile(file);
+                filesRemainingToUpdate = filesToUpdate.Count;
+
+                // TODO: prepare progress bar
+
+                foreach (var file in filesToUpdate)
+                    Client.RequestFile(file);
+            });
         }
 
         public static void SaveFile(FileData fileData)
@@ -105,7 +107,12 @@ namespace VersaCraft_Launcher
             using (FileStream stream = File.OpenWrite(filepath))
                 stream.Write(fileData.File, 0, fileData.File.Length);
 
-            ControlsManager.EnableLoginButtonAfter();
+            filesRemainingToUpdate--;
+        }
+
+        public static bool IsUpdateDone()
+        {
+            return filesRemainingToUpdate == 0;
         }
     }
 }

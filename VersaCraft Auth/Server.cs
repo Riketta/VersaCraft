@@ -12,7 +12,7 @@ namespace VersaCraft_Auth
 {
     class Server
     {
-        private static Logger logger = Logger.GetLogger();
+        private static readonly Logger logger = Logger.GetLogger();
 
 
         static TcpListener server = null;
