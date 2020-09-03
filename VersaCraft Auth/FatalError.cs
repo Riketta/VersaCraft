@@ -11,7 +11,7 @@ namespace VersaCraft_Auth
 {
     class FatalError
     {
-        private static Logger logger = Logger.GetLogger();
+        private static readonly Logger logger = Logger.GetLogger();
 
         public static void Exception(Exception ex, bool crash = false)
         {

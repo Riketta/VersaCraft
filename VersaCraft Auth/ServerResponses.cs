@@ -13,7 +13,7 @@ namespace VersaCraft_Auth
 {
     class ServerResponses
     {
-        private static Logger logger = Logger.GetLogger();
+        private static readonly Logger logger = Logger.GetLogger();
 
 
         public static void AcceptAuth(AuthData authData, TcpClient client)
