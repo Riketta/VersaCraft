@@ -53,10 +53,10 @@ namespace VersaCraft.Protocol
         {
             List<Client> newClients = new List<Client>();
 
-            string[] rawClients = clients.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
+            string[] rawClients = clients.Split(new char[] { '|' }, StringSplitOptions.RemoveEmptyEntries);
             foreach (var rawClient in rawClients)
             {
-                string[] clientFields = rawClient.Trim().Split(':'); // care with trim
+                string[] clientFields = rawClient.Trim().Split(';'); // care with trim
                 string path = clientFields[0];
                 string name = clientFields[1];
                 string url = clientFields[2];
@@ -85,7 +85,7 @@ namespace VersaCraft.Protocol
         {
             string clients = "";
             foreach (var ver in Clients)
-                clients += string.Format("{0}:{1}:{2};", ver.Path, ver.Name, ver.URL);
+                clients += string.Format("{0};{1};{2}|", ver.Path, ver.Name, ver.URL);
 
             return clients;
         }
@@ -121,7 +121,12 @@ namespace VersaCraft.Protocol
     public struct FileData : IPacketData
     {
         public string Filepath;
+        
+        /// <summary>
+        /// -1 if launcher up to date
+        /// </summary>
         public int FileSize;
+        
         public byte[] File;
     }
 }

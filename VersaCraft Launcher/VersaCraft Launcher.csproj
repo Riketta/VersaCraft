@@ -56,8 +56,7 @@
     <ApplicationIcon>VersaCraft_1.ico</ApplicationIcon>
   </PropertyGroup>
   <PropertyGroup>
-    <StartupObject>
-    </StartupObject>
+    <StartupObject>VersaCraft_Launcher.Program</StartupObject>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Costura, Version=4.1.0.0, Culture=neutral, PublicKeyToken=9919ef960d84173d, processorArchitecture=MSIL">
@@ -87,8 +86,10 @@
     </ApplicationDefinition>
     <Compile Include="Config.cs" />
     <Compile Include="ControlsManager.cs" />
+    <Compile Include="FatalError.cs" />
     <Compile Include="IniFile.cs" />
     <Compile Include="MinecraftLauncher.cs" />
+    <Compile Include="Program.cs" />
     <Compile Include="UpdateManager.cs" />
     <Compile Include="Win32.cs" />
     <Page Include="MainWindow.xaml">

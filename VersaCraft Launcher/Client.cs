@@ -21,8 +21,7 @@ namespace VersaCraft_Launcher
             Offline
         }
 
-        public static ClientState State { get => state; private set => state = value; }
-        static ClientState state = ClientState.Connecting;
+        public static ClientState State { get; private set; } = ClientState.Connecting;
 
         static TcpClient client = null;
         static NetworkStream stream = null;
@@ -79,7 +78,7 @@ namespace VersaCraft_Launcher
             {
                 case PacketType.ServerSendLauncherUpdate:
                     FileData fileData = Protocol.DataDeserialize<FileData>(packet.Data);
-                    UpdateManager.SelfUpdate(fileData.File);
+                    UpdateManager.SelfUpdate(fileData);
                     break;
 
                 case PacketType.ServerSendClientsList:

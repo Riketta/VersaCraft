@@ -63,6 +63,7 @@ namespace VersaCraft_Auth
             };
 
             sessions.Add(session);
+            logger.Info("Added session {3}: client {0}; Username: \"{1}\"; PassHash: {2}", ((IPEndPoint)client.Client.RemoteEndPoint).ToString(), authData.Username, authData.PassHash, authData.Session);
         }
     }
 }

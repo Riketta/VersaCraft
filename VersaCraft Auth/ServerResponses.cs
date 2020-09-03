@@ -18,20 +18,18 @@ namespace VersaCraft_Auth
 
         public static void AcceptAuth(AuthData authData, TcpClient client)
         {
-            logger.Debug("Received auth data from {0}. Session: {3}; Username: \"{1}\"; PassHash: {2}", ((IPEndPoint)client.Client.RemoteEndPoint).ToString(), authData.Username, authData.PassHash, authData.Session);
             SessionManager.AddSession(authData, client);
         }
 
         public static void SendLauncher(string version, TcpClient client)
         {
-            if (Config.Instance.LauncherVersion.CompareTo(version) <= 0)
-                return;
+            bool isUpdateRequired = Config.Instance.LauncherVersion.CompareTo(version) > 0;
 
             FileData launcher = new FileData()
             {
                 Filepath = ".",
-                FileSize = Config.Instance.LauncherData.Length,
-                File = Config.Instance.LauncherData,
+                FileSize = isUpdateRequired ? Config.Instance.LauncherData.Length : -1,
+                File = isUpdateRequired ? Config.Instance.LauncherData : new byte[] { 0 },
             };
 
             Packet packet = Protocol.FormPacket(PacketType.ServerSendLauncherUpdate, launcher);

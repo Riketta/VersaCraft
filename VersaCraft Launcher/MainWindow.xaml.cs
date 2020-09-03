@@ -39,7 +39,7 @@ namespace VersaCraft_Launcher
             ControlsManager.SetLoginButton(login);
 
             logger.Info("Loading config");
-            Config.Instance.Load();
+            Config.Instance.Load(); // TODO: not read config before launcher update?
 
             logger.Info("Preparing UI");
             username.Text = Config.Instance.Username;
@@ -97,7 +97,7 @@ namespace VersaCraft_Launcher
 
                 await UpdateManager.UpdateClient(client);
                 logger.Info("Waiting client updates to finish");
-                await Task.Run(() => { while (!UpdateManager.IsUpdateDone()) { } });
+                await Task.Run(() => { while (!UpdateManager.IsClientUpdateDone()) { } });
                 logger.Info("Client updating done");
 
                 logger.Info("Updating config with current login data");
@@ -144,6 +144,10 @@ namespace VersaCraft_Launcher
                     logger.Info("Requesting launcher update");
                     Client.RequestLauncherUpdate();
 
+                    logger.Info("Waiting launcher to update");
+                    while (!UpdateManager.IsLauncherUpToDate()) { }
+                    logger.Info("No update required");
+
                     logger.Info("Requesting clients data");
                     Client.RequestClients();
 
@@ -179,6 +183,10 @@ namespace VersaCraft_Launcher
         private void Clients_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             Config.Instance.SelectedClient = (string)((ComboBox)sender).SelectedItem;
+            
+            string url = Config.Instance.Clients.Clients.FirstOrDefault(c => c.Name == Config.Instance.SelectedClient).URL;
+            if (!string.IsNullOrEmpty(url))
+                browser.Navigate(new Uri(url));
         }
     }
 }

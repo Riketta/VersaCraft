@@ -22,12 +22,21 @@ namespace VersaCraft_Launcher
         static readonly string updatedPostfix = "_update";
         static readonly string backupPostfix = "_backup";
 
+        static bool isLauncherUpToDate = false;
         static int filesRemainingToUpdate = 0;
 
-        public static void SelfUpdate(byte[] launcher)
+        public static void SelfUpdate(FileData fileData)
         {
             logger.Info("Launcher self updating");
             ControlsManager.DisableLoginButton();
+
+            if (fileData.FileSize == -1) // up to date
+            {
+                isLauncherUpToDate = true;
+                return;
+            }
+
+            byte[] launcher = fileData.File;
 
             string currentLauncherPath = Assembly.GetExecutingAssembly().Location;
             string backupLauncherPath = currentLauncherPath + backupPostfix;
@@ -110,7 +119,12 @@ namespace VersaCraft_Launcher
             filesRemainingToUpdate--;
         }
 
-        public static bool IsUpdateDone()
+        public static bool IsLauncherUpToDate()
+        {
+            return isLauncherUpToDate;
+        }
+
+        public static bool IsClientUpdateDone()
         {
             return filesRemainingToUpdate == 0;
         }
