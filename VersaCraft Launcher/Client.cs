@@ -107,7 +107,7 @@ namespace VersaCraft_Launcher
         /// <param name="session"></param>
         /// <param name="username"></param>
         /// <param name="passHash">Already hashed password with <see cref="CryptoUtils.CalculateStringVersaHash"/>.</param>
-        public static void RequestAuth(string session, string username, string passHash)
+        public static void SendAuth(string session, string username, string passHash)
         {
             AuthData authData = new AuthData()
             {
@@ -116,7 +116,7 @@ namespace VersaCraft_Launcher
                 PassHash = passHash,
             };
 
-            Packet packet = Protocol.FormPacket(PacketType.LauncherRequestAuth, authData);
+            Packet packet = Protocol.FormPacket(PacketType.LauncherSendAuth, authData);
             Protocol.SendPacket(packet, client);
         }
 

@@ -19,7 +19,7 @@ namespace VersaCraft_Auth
         private struct Session
         {
             public DateTime Expires;
-            public IPAddress Address;
+            public TcpClient Client;
             public string Username;
             public string PassHash;
         }
@@ -46,9 +46,9 @@ namespace VersaCraft_Auth
         {
             IPAddress address = ((IPEndPoint)client.Client.RemoteEndPoint).Address;
 
-            if (sessions.Count(s => s.Address.Equals(address)) >= Config.SessionsLimitPerAddress)
+            if (sessions.Count(s => ((IPEndPoint)s.Client.Client.RemoteEndPoint).Address.Equals(address)) >= Config.SessionsLimitPerAddress)
             {
-                logger.Warn("Client {0} trying to exceed address per IP limitation! Rejecting his connection.", ((IPEndPoint)client.Client.RemoteEndPoint).ToString());
+                logger.Warn("Client {0} trying to exceed address per IP limitation! Rejecting his connection.", address.ToString());
                 client.Close();
                 
                 return;
@@ -57,13 +57,13 @@ namespace VersaCraft_Auth
             Session session = new Session()
             {
                 Expires = DateTime.Now.AddSeconds(Config.SessionTTL),
-                Address = address,
+                Client = client,
                 Username = authData.Username,
                 PassHash = authData.PassHash,
             };
 
             sessions.Add(session);
-            logger.Info("Added session {3}: client {0}; Username: \"{1}\"; PassHash: {2}", ((IPEndPoint)client.Client.RemoteEndPoint).ToString(), authData.Username, authData.PassHash, authData.Session);
+            logger.Info("Added session {3}: Client {0}; Username: \"{1}\"; PassHash: {2}", address, authData.Username, authData.PassHash, authData.Session);
         }
     }
 }

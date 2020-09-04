@@ -106,22 +106,23 @@ namespace VersaCraft_Launcher
                 string passHash = Config.Instance.PassHash == password.Password ? Config.Instance.PassHash : CryptoUtils.CalculateStringVersaHash(password.Password);
                 Config.Instance.PassHash = passHash;
 
-                string session = CryptoUtils.CalculateStringSHA1(string.Format("{0}_{1}_{2}", Config.Instance.Username, DateTime.Now.Ticks.ToString(), CryptoUtils.GetComputerSid().ToString()));
+                string session = Anticheat.Session;
 
                 logger.Info("Requesting auth");
                 ControlsManager.SetStatus("Requesting auth...");
-                Client.RequestAuth(session, username.Text, passHash);
+                Client.SendAuth(session, username.Text, passHash);
 
                 logger.Info("Launching Minecraft");
                 ControlsManager.SetStatus("Launching Minecraft...");
                 WindowState = WindowState.Minimized;
-                var minecraft = MinecraftLauncher.Start(username.Text, session, client.Path);
+                var minecraft = MinecraftLauncher.Start(username.Text, session, client.Server, client.Path);
 
                 if (Config.Instance.WindowedFullscreen)
                     MinecraftLauncher.EnableWindowedFullscreen(minecraft);
 
                 logger.Info("All jobs done");
                 Application.Current.Shutdown();
+                Anticheat.HideLauncher();
             }
         }
 

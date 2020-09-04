@@ -84,6 +84,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Anticheat.cs" />
     <Compile Include="Config.cs" />
     <Compile Include="ControlsManager.cs" />
     <Compile Include="FatalError.cs" />

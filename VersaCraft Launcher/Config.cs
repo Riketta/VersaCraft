@@ -19,7 +19,7 @@ namespace VersaCraft_Launcher
 
 
         IniFile ini;
-        static readonly string ConfigPath = "launcher.ini";
+        static readonly string ConfigFile = "launcher.ini";
         static readonly string LauncherSection = "launcher";
 
         public static Config Instance
@@ -232,30 +232,40 @@ namespace VersaCraft_Launcher
 
         public Config Load()
         {
-            logger.Debug("Creating INI reader");
+            logger.Info("Creating INI reader");
 
-            if (!File.Exists(ConfigPath))
+            if (!File.Exists(ConfigFile))
             {
-                logger.Debug("No config found. Saving default.");
+                logger.Info("Using default config");
                 SaveDefault();
             }
             else
             {
-                if (ini != null)
-                    logger.Warn("INI reader already exists! Recreating.");
-                ini = new IniFile(ConfigPath);
-            }
+                try
+                {
+                    if (ini != null)
+                        logger.Warn("INI reader already exists! Recreating.");
+                    ini = new IniFile(ConfigFile);
 
-            logger.Debug("Reading config");
-            // init (pre-read/cache) next values:
-            _ = Clients;
-            _ = Username;
-            _ = PassHash;
-            _ = IsSavingPassword;
-            _ = SelectedClient;
-            _ = WindowedFullscreen;
-            _ = JVMArguments;
-            _ = Address;
+                    logger.Debug("Reading config");
+                    // init (pre-read/cache) next values:
+                    _ = Clients;
+                    _ = Username;
+                    _ = PassHash;
+                    _ = IsSavingPassword;
+                    _ = SelectedClient;
+                    _ = WindowedFullscreen;
+                    _ = JVMArguments;
+                    _ = Address;
+                }
+                catch (Exception ex)
+                {
+                    logger.Error("Failed to read config: {0}", ex.ToString());
+                    logger.Info("Backuping current and using default config");
+                    Backup();
+                    SaveDefault();
+                }
+            }
             logger.Debug(ToString());
 
             return this;
@@ -263,7 +273,7 @@ namespace VersaCraft_Launcher
 
         public void SaveDefault()
         {
-            ini = new IniFile(ConfigPath);
+            ini = new IniFile(ConfigFile);
 
             Clients = Clients;
             Username = Username;
@@ -273,6 +283,20 @@ namespace VersaCraft_Launcher
             WindowedFullscreen = WindowedFullscreen;
             JVMArguments = JVMArguments;
             Address = Address;
+        }
+
+        public void Backup()
+        {
+            logger.Info("Backuping config");
+            string backupFile = ConfigFile + "_backup";
+
+            if (File.Exists(backupFile))
+            {
+                logger.Warn("Removing previous backup");
+                File.Delete(backupFile);
+            }
+
+            File.Move(ConfigFile, backupFile);
         }
 
         public void UpdateClients(ClientsData clientsData)

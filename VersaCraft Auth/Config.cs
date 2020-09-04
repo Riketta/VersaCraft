@@ -125,7 +125,7 @@ namespace VersaCraft_Auth
 
             logger.Info("Caching {0} clients", newClients.Count);
             foreach (var client in newClients)
-                logger.Info("Added new client \"{0}\" with path \"{1}\" and URL \"{2}\"", client.Name, client.Path, client.URL);
+                logger.Info("Added new client \"{0}\" with path \"{1}\" and URL \"{2}\" for server \"{3}\"", client.Name, client.Path, client.URL, client.Server);
 
             ClientsData clientsData = new ClientsData()
             {

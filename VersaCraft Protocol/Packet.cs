@@ -11,11 +11,11 @@ namespace VersaCraft.Protocol
     public enum PacketType
     {
         /// <summary>
-        /// Запрос на авторизацию от лаунчера с аунтификационными данными.
+        /// Запрос на авторизацию от лаунчера с аунтификационными данными в виде <see cref="Packet.Data"/>.
+        /// Является ответом на запрос сервера <see cref="ServerRequestAuth"/>.
         /// Ответ не ожидается, сервер вносит данные о ожидаемой сессии с клиентом на ближайшее время.
-        /// <see cref="Packet.Data"/> - данные в виде структуры <see cref="AuthData"/>.
         /// </summary>
-        LauncherRequestAuth,
+        LauncherSendAuth,
 
 
         /// <summary>
@@ -62,6 +62,12 @@ namespace VersaCraft.Protocol
         /// <see cref="Packet.Data"/> - файл новой версии лаунчера в виде <see cref="FileData"/>.
         /// </summary>
         ServerSendClientFile,
+
+
+        /// <summary>
+        /// Запрос на повторную авторизацию от сервера, в ответ ожидается <see cref="AuthData"/>.
+        /// </summary>
+        ServerRequestAuth,
     }
 
     [Serializable]

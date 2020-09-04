@@ -66,7 +66,7 @@ namespace VersaCraft_Auth
         {
             switch (packet.Type)
             {
-                case PacketType.LauncherRequestAuth:
+                case PacketType.LauncherSendAuth:
                     AuthData authData = Protocol.DataDeserialize<AuthData>(packet.Data);
                     ServerResponses.AcceptAuth(authData, client);
                     break;

@@ -39,6 +39,11 @@ namespace VersaCraft.Protocol
             public string Name;
 
             /// <summary>
+            /// Server address with port. Can be blank.
+            /// </summary>
+            public string Server;
+
+            /// <summary>
             /// Individual client URL address. Can be blank.
             /// </summary>
             public string URL;
@@ -59,7 +64,8 @@ namespace VersaCraft.Protocol
                 string[] clientFields = rawClient.Trim().Split(';'); // care with trim
                 string path = clientFields[0];
                 string name = clientFields[1];
-                string url = clientFields[2];
+                string server = clientFields[2];
+                string url = clientFields[3];
 
                 if (string.IsNullOrEmpty(path)) // path can't be empty as primary key
                     continue;
@@ -68,6 +74,7 @@ namespace VersaCraft.Protocol
                 {
                     Path = path,
                     Name = !string.IsNullOrEmpty(name) ? name : path, // not combined path with server folder for updates!
+                    Server = !string.IsNullOrEmpty(server) ? server : "",
                     URL = !string.IsNullOrEmpty(url) ? url : "",
                 };
 
@@ -85,7 +92,7 @@ namespace VersaCraft.Protocol
         {
             string clients = "";
             foreach (var ver in Clients)
-                clients += string.Format("{0};{1};{2}|", ver.Path, ver.Name, ver.URL);
+                clients += string.Format("{0};{1};{2};{3}|", ver.Path, ver.Name, ver.Server, ver.URL);
 
             return clients;
         }

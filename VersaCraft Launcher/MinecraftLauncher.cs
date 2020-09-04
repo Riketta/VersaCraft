@@ -83,7 +83,7 @@ namespace VersaCraft_Launcher
             return Path.GetFileNameWithoutExtension(files[0]);
         }
 
-        public static Process Start(string username, string session, string gameDir)
+        public static Process Start(string username, string session, string server, string gameDir)
         {
             gameDir = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), gameDir);
 
@@ -102,7 +102,17 @@ namespace VersaCraft_Launcher
             string coreargs = $@"-Djava.library.path=""{natives}"" -cp {libraries};""{versionFile}"" {GetMainClass(version)}";
             string additional = $@"-Xss1M -Dminecraft.launcher.brand=minecraft-launcher -Dminecraft.launcher.version=2.1.17315 -Dlog4j.configurationFile=""{gameDir}\assets\log_configs\client-1.12.xml""";
 
-            string execute = $@"{Config.Instance.JVMArguments} {additional} {coreargs} {args}";
+
+            if (!string.IsNullOrEmpty(server))
+            {
+                string[] rawserver = server.Split(':');
+                string address = rawserver[0];
+                string port = rawserver[1];
+
+                server = $@"--server {address} --port {port}";
+            }
+
+            string execute = $@"{Config.Instance.JVMArguments} {additional} {coreargs} {args} {server}";
 
             Process minecraft = new Process();
             minecraft.StartInfo.FileName = jre;
