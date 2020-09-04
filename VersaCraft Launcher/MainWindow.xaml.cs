@@ -147,7 +147,6 @@ namespace VersaCraft_Launcher
 
                     logger.Info("Waiting launcher to update");
                     while (!UpdateManager.IsLauncherUpToDate()) { }
-                    logger.Info("No update required");
 
                     logger.Info("Requesting clients data");
                     Client.RequestClients();

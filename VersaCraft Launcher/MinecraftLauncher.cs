@@ -20,12 +20,12 @@ namespace VersaCraft_Launcher
 
         //static readonly string LoggerPrefix = "[Minecraft] ";
         
-        static readonly string VersionsFolder = @"versions";
-        static readonly string AssetFolder = @"assets";
-        static readonly string AssetIndexFolder = Path.Combine(AssetFolder, @"indexes");
-        static readonly string NativesFolder = @"natives";
-        static readonly string LibrariesFolder = @"libraries";
-        static readonly string JavaExecutable = @"jre\bin\javaw.exe";
+        public static readonly string VersionsFolder = @"versions";
+        public static readonly string AssetFolder = @"assets";
+        public static readonly string AssetIndexFolder = Path.Combine(AssetFolder, @"indexes");
+        public static readonly string NativesFolder = @"natives";
+        public static readonly string LibrariesFolder = @"libraries";
+        public static readonly string JavaExecutable = @"jre\bin\javaw.exe";
 
         public static string GetMainClass(string version)
         {
@@ -42,9 +42,19 @@ namespace VersaCraft_Launcher
             }
         }
 
+        public static string[] GetVersionFiles(string gameDir)
+        {
+            return Directory.GetFiles(Path.Combine(gameDir, VersionsFolder), "*.jar", SearchOption.AllDirectories);
+        }
+
+        public static void RemoveVersionFiles(string gameDir)
+        {
+            Directory.Delete(Path.Combine(gameDir, VersionsFolder), true);
+        }
+
         public static string GetVersionFile(string gameDir)
         {
-            string[] files = Directory.GetFiles(Path.Combine(gameDir, VersionsFolder), "*.jar", SearchOption.AllDirectories);
+            string[] files = GetVersionFiles(gameDir);
 
             if (files.Length == 0)
             {

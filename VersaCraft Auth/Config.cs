@@ -87,7 +87,7 @@ namespace VersaCraft_Auth
             logger.Info("Caching client versions");
             LoadClientVersions();
 
-            logger.Info("Caching files of {0} client(s)", Config.Instance.Clients.Clients.Length);
+            logger.Info("Caching files of {0} client(s)", Clients.Clients?.Length);
             LoadClientFilesData();
         }
 

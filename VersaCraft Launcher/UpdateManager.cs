@@ -33,6 +33,7 @@ namespace VersaCraft_Launcher
             if (fileData.FileSize == -1) // up to date
             {
                 isLauncherUpToDate = true;
+                logger.Info("No launcher update required");
                 return;
             }
 
@@ -70,10 +71,16 @@ namespace VersaCraft_Launcher
             logger.Info("Updating client placed in \"{0}\"", client.Path);
             List<string> filesToUpdate = new List<string>();
          
-            if (Config.Instance.ClientsFiles.Files == null)
+            if (Config.Instance.ClientsFiles.Files == null || Config.Instance.ClientsFiles.Files.Length == 0)
             {
                 logger.Error("No clients files data available!");
                 return;
+            }
+
+            if (MinecraftLauncher.GetVersionFiles(client.Path).Length > 1)
+            {
+                logger.Warn("More than one expected version client file found!");
+                MinecraftLauncher.RemoveVersionFiles(client.Path);
             }
 
             await Task.Run(() =>
