@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -22,8 +23,24 @@ namespace VersaCraft_Launcher
         static readonly string updatedPostfix = "_update";
         static readonly string backupPostfix = "_backup";
 
-        static bool isLauncherUpToDate = false;
+        public static AutoResetEvent LauncherUpdate = new AutoResetEvent(false);
+        public static AutoResetEvent ClientUpdate = new AutoResetEvent(false);
+        
+        public static int FilesRemainingToUpdate
+        {
+            get
+            {
+                return filesRemainingToUpdate;
+            }
+            set
+            {
+                if (value == 0)
+                    ClientUpdate.Set();
+                filesRemainingToUpdate = value;
+            }
+        }
         static int filesRemainingToUpdate = 0;
+
 
         public static void SelfUpdate(FileData fileData)
         {
@@ -32,7 +49,7 @@ namespace VersaCraft_Launcher
 
             if (fileData.FileSize == -1) // up to date
             {
-                isLauncherUpToDate = true;
+                LauncherUpdate.Set();
                 logger.Info("No launcher update required");
                 return;
             }
@@ -97,7 +114,7 @@ namespace VersaCraft_Launcher
 
                 // TODO: remove not listed local files, except settings and saves
 
-                filesRemainingToUpdate = filesToUpdate.Count;
+                FilesRemainingToUpdate = filesToUpdate.Count;
 
                 // TODO: prepare progress bar
 
@@ -123,17 +140,7 @@ namespace VersaCraft_Launcher
             using (FileStream stream = File.OpenWrite(filepath))
                 stream.Write(fileData.File, 0, fileData.File.Length);
 
-            filesRemainingToUpdate--;
-        }
-
-        public static bool IsLauncherUpToDate()
-        {
-            return isLauncherUpToDate;
-        }
-
-        public static bool IsClientUpdateDone()
-        {
-            return filesRemainingToUpdate == 0;
+            FilesRemainingToUpdate--;
         }
     }
 }

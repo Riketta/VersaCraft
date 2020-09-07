@@ -24,9 +24,9 @@ namespace VersaCraft_Launcher
         }
         private static string session;
 
-        public static void HideLauncher(MainWindow window)
+        public static void HideLauncher()
         {
-            window.WindowState = WindowState.Minimized;
+            ControlsManager.HideForm();
         }
 
         public static void Protect()

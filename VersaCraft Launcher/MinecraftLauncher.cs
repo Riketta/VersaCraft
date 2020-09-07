@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using VersaCraft.Logger;
@@ -19,7 +20,6 @@ namespace VersaCraft_Launcher
 
 
         //static readonly string LoggerPrefix = "[Minecraft] ";
-        
         public static readonly string VersionsFolder = @"versions";
         public static readonly string AssetFolder = @"assets";
         public static readonly string AssetIndexFolder = Path.Combine(AssetFolder, @"indexes");
@@ -165,6 +165,65 @@ namespace VersaCraft_Launcher
             //});
 
             return minecraft;
+        }
+
+        public static async Task Login(string username, string password)
+        {
+
+
+            if (Client.IsConnected())
+            {
+                if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
+                {
+                    logger.Warn("No login data entered to request auth");
+                    ControlsManager.SetStatus("Enter login and password!");
+                    return;
+                }
+
+                string clientName = ControlsManager.GetSelectedClientName();
+                if (string.IsNullOrEmpty(clientName))
+                {
+                    logger.Error("Client not selected!");
+                    ControlsManager.SetStatus("Select client!");
+                    return;
+                }
+
+                ControlsManager.DisableLoginButton();
+                logger.Info("Requesting client update");
+                ClientsData.Client client = Config.Instance.Clients.Clients.First(c => c.Name == clientName);
+
+                await UpdateManager.UpdateClient(client);
+                logger.Info("Waiting client updates to finish");
+                await Task.Run(() => { UpdateManager.ClientUpdate.WaitOne(); });
+                logger.Info("Client updating done");
+
+                logger.Info("Updating config with current login data");
+                Config.Instance.Username = username;
+
+                string passHash = Config.Instance.PassHash == password ? Config.Instance.PassHash : CryptoUtils.CalculateStringVersaHash(password);
+                Config.Instance.PassHash = passHash;
+
+                string session = Anticheat.Session;
+
+                logger.Info("Requesting auth");
+                ControlsManager.SetStatus("Requesting auth...");
+                Client.SendAuth(session, username, passHash);
+
+                logger.Info("Launching Minecraft");
+                ControlsManager.SetStatus("Launching Minecraft...");
+                Anticheat.HideLauncher();
+                var minecraft = MinecraftLauncher.Start(username, session, client.Server, client.Path);
+
+                if (Config.Instance.WindowedFullscreen)
+                    MinecraftLauncher.EnableWindowedFullscreen(minecraft);
+
+                Anticheat.Protect();
+
+                logger.Info("All jobs done");
+                Application.Exit();
+            }
+
+            // TODO: offline mode
         }
 
         public static void EnableWindowedFullscreen(Process minecraft)

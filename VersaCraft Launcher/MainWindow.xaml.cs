@@ -33,9 +33,10 @@ namespace VersaCraft_Launcher
             MainForm.Title = string.Format("{0} ver. {1}", MainForm.Title, version);
             logger.Info("VersaCraft Launcher ver. {0}", version);
 
-            ControlsManager.SetClientsComboBox(clients);
-            ControlsManager.SetStatusLabel(status);
-            ControlsManager.SetLoginButton(login);
+            ControlsManager.MainForm = this;
+            ControlsManager.ClientsComboBox = clients;
+            ControlsManager.StatusLabel = status;
+            ControlsManager.LoginButton = login;
 
             logger.Info("Loading config");
             Config.Instance.Load(); // TODO: not read config before launcher update?
@@ -73,57 +74,7 @@ namespace VersaCraft_Launcher
 
         private async void Login_Click(object sender, RoutedEventArgs e)
         {
-            if (Client.IsConnected())
-            {
-                if (string.IsNullOrEmpty(username.Text) || string.IsNullOrEmpty(password.Password))
-                {
-                    logger.Warn("No login data entered to request auth");
-                    ControlsManager.SetStatus("Enter login and password!");
-                    return;
-                }
-
-                string clientName = ControlsManager.GetSelectedClientName();
-                if (string.IsNullOrEmpty(clientName))
-                {
-                    logger.Error("Client not selected!");
-                    ControlsManager.SetStatus("Select client!");
-                    return;
-                }
-
-                ControlsManager.DisableLoginButton();
-                logger.Info("Requesting client update");
-                ClientsData.Client client = Config.Instance.Clients.Clients.First(c => c.Name == clientName);
-
-                await UpdateManager.UpdateClient(client);
-                logger.Info("Waiting client updates to finish");
-                await Task.Run(() => { while (!UpdateManager.IsClientUpdateDone()) { } });
-                logger.Info("Client updating done");
-
-                logger.Info("Updating config with current login data");
-                Config.Instance.Username = username.Text;
-
-                string passHash = Config.Instance.PassHash == password.Password ? Config.Instance.PassHash : CryptoUtils.CalculateStringVersaHash(password.Password);
-                Config.Instance.PassHash = passHash;
-
-                string session = Anticheat.Session;
-
-                logger.Info("Requesting auth");
-                ControlsManager.SetStatus("Requesting auth...");
-                Client.SendAuth(session, username.Text, passHash);
-
-                logger.Info("Launching Minecraft");
-                ControlsManager.SetStatus("Launching Minecraft...");
-                Anticheat.HideLauncher(this);
-                var minecraft = MinecraftLauncher.Start(username.Text, session, client.Server, client.Path);
-
-                if (Config.Instance.WindowedFullscreen)
-                    MinecraftLauncher.EnableWindowedFullscreen(minecraft);
-
-                Anticheat.Protect();
-
-                logger.Info("All jobs done");
-                Application.Current.Shutdown();
-            }
+            await MinecraftLauncher.Login(username.Text, password.Password);
         }
 
         private void MainForm_Loaded(object sender, RoutedEventArgs e)
@@ -146,7 +97,7 @@ namespace VersaCraft_Launcher
                     Client.RequestLauncherUpdate();
 
                     logger.Info("Waiting launcher to update");
-                    while (!UpdateManager.IsLauncherUpToDate()) { }
+                    UpdateManager.LauncherUpdate.WaitOne();
 
                     logger.Info("Requesting clients data");
                     Client.RequestClients();

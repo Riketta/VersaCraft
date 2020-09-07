@@ -15,40 +15,36 @@ namespace VersaCraft_Launcher
     {
         private static readonly Logger logger = Logger.GetLogger();
 
+        public static MainWindow MainForm { private get; set; } = null;
+        public static Label StatusLabel { private get; set; } = null;
+        public static Button LoginButton { private get; set; } = null;
+        public static ComboBox ClientsComboBox { private get; set; } = null;
 
-        static Label status = null;
-        static ComboBox clients = null;
-        static Button loginButton = null;
-
-        public static void SetStatusLabel(Label label)
+        public static void HideForm()
         {
-            status = label;
-        }
+            if (StatusLabel == null)
+            {
+                logger.Warn("Form assigned! Can't modify.");
+                return;
+            }
 
-        public static void SetClientsComboBox(ComboBox comboBox)
-        {
-            clients = comboBox;
-        }
-
-        public static void SetLoginButton(Button login)
-        {
-            loginButton = login;
+            Application.Current.Dispatcher.Invoke(() => { MainForm.WindowState = WindowState.Minimized; });
         }
 
         public static void SetStatus(string text)
         {
-            if (status == null)
+            if (StatusLabel == null)
             {
                 logger.Warn("Status label not assigned! Can't update.");
                 return;
             }
             
-            Application.Current.Dispatcher.Invoke(() => { status.Content = text; });
+            Application.Current.Dispatcher.Invoke(() => { StatusLabel.Content = text; });
         }
 
         public static void UpdateClientsComboBox(ClientsData clientsData)
         {
-            if (clients == null)
+            if (ClientsComboBox == null)
             {
                 logger.Warn("Clients box not assigned! Can't update.");
                 return;
@@ -56,56 +52,56 @@ namespace VersaCraft_Launcher
             
             Application.Current.Dispatcher.Invoke(() =>
             {
-                clients.ItemsSource = clientsData.Clients.Select(c => c.Name);
-                clients.SelectedItem = clientsData.Clients.FirstOrDefault(c => c.Name == Config.Instance.SelectedClient).Name;
+                ClientsComboBox.ItemsSource = clientsData.Clients.Select(c => c.Name);
+                ClientsComboBox.SelectedItem = clientsData.Clients.FirstOrDefault(c => c.Name == Config.Instance.SelectedClient).Name;
             });
         }
 
         public static string GetSelectedClientName()
         {
-            if (clients == null)
+            if (ClientsComboBox == null)
             {
                 logger.Warn("Clients box not assigned! Can't access selection.");
                 return null;
             }
 
             string clientName = null;
-            Application.Current.Dispatcher.Invoke(() => { clientName = (string)clients.SelectedItem; });
+            Application.Current.Dispatcher.Invoke(() => { clientName = (string)ClientsComboBox.SelectedItem; });
             
             return clientName;
         }
 
         public static void DisableLoginButton()
         {
-            if (loginButton == null)
+            if (LoginButton == null)
             {
                 logger.Warn("Login button not assigned! Can't disable.");
                 return;
             }
             
-            Application.Current.Dispatcher.Invoke(() => { loginButton.IsEnabled = false; });
+            Application.Current.Dispatcher.Invoke(() => { LoginButton.IsEnabled = false; });
         }
 
         public static void EnableLoginButton()
         {
-            if (loginButton == null)
+            if (LoginButton == null)
             {
                 logger.Warn("Login button not assigned! Can't enable.");
                 return;
             }
 
-            Application.Current.Dispatcher.Invoke(() => { loginButton.IsEnabled = true; });
+            Application.Current.Dispatcher.Invoke(() => { LoginButton.IsEnabled = true; });
         }
 
         public static void SetLoginButtonOffline()
         {
-            if (loginButton == null)
+            if (LoginButton == null)
             {
                 logger.Warn("Login button not assigned! Can't rename.");
                 return;
             }
 
-            Application.Current.Dispatcher.Invoke(() => { loginButton.Content = "Offline"; });
+            Application.Current.Dispatcher.Invoke(() => { LoginButton.Content = "Offline"; });
         }
     }
 }
