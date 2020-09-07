@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using VersaCraft.Logger;
 using VersaCraft.Protocol;
 
@@ -23,7 +24,12 @@ namespace VersaCraft_Launcher
         }
         private static string session;
 
-        public static void HideLauncher()
+        public static void HideLauncher(MainWindow window)
+        {
+            window.WindowState = WindowState.Minimized;
+        }
+
+        public static void Protect()
         {
             // TODO: implement
         }

@@ -15,7 +15,6 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using VersaCraft.Logger;
 using VersaCraft.Protocol;
-using static VersaCraft.Protocol.ClientsData;
 
 namespace VersaCraft_Launcher
 {
@@ -114,15 +113,16 @@ namespace VersaCraft_Launcher
 
                 logger.Info("Launching Minecraft");
                 ControlsManager.SetStatus("Launching Minecraft...");
-                WindowState = WindowState.Minimized;
+                Anticheat.HideLauncher(this);
                 var minecraft = MinecraftLauncher.Start(username.Text, session, client.Server, client.Path);
 
                 if (Config.Instance.WindowedFullscreen)
                     MinecraftLauncher.EnableWindowedFullscreen(minecraft);
 
+                Anticheat.Protect();
+
                 logger.Info("All jobs done");
                 Application.Current.Shutdown();
-                Anticheat.HideLauncher();
             }
         }
 

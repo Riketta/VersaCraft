@@ -77,7 +77,7 @@ namespace VersaCraft_Launcher
                 return;
             }
 
-            if (MinecraftLauncher.GetVersionFiles(client.Path).Length > 1)
+            if (MinecraftLauncher.GetVersionFiles(client.Path)?.Length > 1)
             {
                 logger.Warn("More than one expected version client file found!");
                 MinecraftLauncher.RemoveVersionFiles(client.Path);

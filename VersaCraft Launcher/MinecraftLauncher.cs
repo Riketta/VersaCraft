@@ -44,7 +44,11 @@ namespace VersaCraft_Launcher
 
         public static string[] GetVersionFiles(string gameDir)
         {
-            return Directory.GetFiles(Path.Combine(gameDir, VersionsFolder), "*.jar", SearchOption.AllDirectories);
+            string path = Path.Combine(gameDir, VersionsFolder);
+            if (Directory.Exists(path))
+                return Directory.GetFiles(path, "*.jar", SearchOption.AllDirectories);
+            
+            return null;
         }
 
         public static void RemoveVersionFiles(string gameDir)
