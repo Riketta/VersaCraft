@@ -39,7 +39,8 @@ namespace VersaCraft_Auth
         {
             DateTime now = DateTime.Now;
             int removedAmount = sessions.RemoveAll(s => s.Expires < now);
-            logger.Info("Sessions cleanup: removed {0} entries", removedAmount);
+            if (removedAmount > 0)
+                logger.Info("Sessions cleanup: removed {0} entries", removedAmount);
         }
 
         public static void AddSession(AuthData authData, TcpClient client)
