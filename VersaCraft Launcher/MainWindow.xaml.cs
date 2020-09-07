@@ -75,7 +75,19 @@ namespace VersaCraft_Launcher
 
         private async void Login_Click(object sender, RoutedEventArgs e)
         {
+            isSavingPassword.IsEnabled = false;
+            username.IsEnabled = false;
+            password.IsEnabled = false;
+            clients.IsEnabled = false;
+            login.IsEnabled = false;
+
             await MinecraftLauncher.Login(username.Text, password.Password);
+
+            isSavingPassword.IsEnabled = true;
+            username.IsEnabled = true;
+            password.IsEnabled = true;
+            clients.IsEnabled = true;
+            login.IsEnabled = true;
         }
 
         private void MainForm_Loaded(object sender, RoutedEventArgs e)
