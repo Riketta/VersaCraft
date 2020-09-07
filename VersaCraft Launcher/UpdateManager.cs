@@ -111,12 +111,6 @@ namespace VersaCraft_Launcher
                 return;
             }
 
-            if (MinecraftLauncher.GetVersionFiles(client.Path)?.Length > 1)
-            {
-                logger.Warn("More than one expected version client file found!");
-                MinecraftLauncher.RemoveVersionFiles(client.Path);
-            }
-
             await Task.Run(() =>
             {
                 List<string> nonlistedFiles = null;
@@ -128,28 +122,33 @@ namespace VersaCraft_Launcher
                 {
                     if (File.Exists(remoteFile.Filepath))
                     {
-                        if (CryptoUtils.CalculateFileMD5(remoteFile.Filepath) != remoteFile.Hash) // file exist and up to date, no reason to update it
-                            filesToUpdate.Add(remoteFile.Filepath);
-
-                        nonlistedFiles.Remove(remoteFile.Filepath);
+                        nonlistedFiles?.Remove(remoteFile.Filepath); // filter valid file
+                        
+                        if (CryptoUtils.CalculateFileMD5(remoteFile.Filepath) == remoteFile.Hash) // file exist and up to date, no reason to update it
+                            continue;
                     }
+
+                    filesToUpdate.Add(remoteFile.Filepath);
                 }
 
-                string[] blacklistedFolders = new string[]
+                if (nonlistedFiles != null && nonlistedFiles.Count > 0)
                 {
-                    Path.Combine(client.Path, MinecraftLauncher.VersionsFolder) + Path.DirectorySeparatorChar,
-                    Path.Combine(client.Path, MinecraftLauncher.LibrariesFolder) + Path.DirectorySeparatorChar,
-                    Path.Combine(client.Path, MinecraftLauncher.NativesFolder) + Path.DirectorySeparatorChar,
-                    Path.Combine(client.Path, MinecraftLauncher.ModsFolder) + Path.DirectorySeparatorChar,
-                    Path.Combine(client.Path, MinecraftLauncher.AssetIndexFolder) + Path.DirectorySeparatorChar,
-                };
-
-                foreach (var file in nonlistedFiles)
-                    if (blacklistedFolders.Any(file.StartsWith))
+                    string[] blacklistedFolders = new string[]
                     {
-                        logger.Warn("Deleting unknown file \"{0}\" in blacklisted forlder!", file);
-                        File.Delete(file);
-                    }
+                        Path.Combine(client.Path, MinecraftLauncher.VersionsFolder) + Path.DirectorySeparatorChar,
+                        Path.Combine(client.Path, MinecraftLauncher.LibrariesFolder) + Path.DirectorySeparatorChar,
+                        Path.Combine(client.Path, MinecraftLauncher.NativesFolder) + Path.DirectorySeparatorChar,
+                        Path.Combine(client.Path, MinecraftLauncher.ModsFolder) + Path.DirectorySeparatorChar,
+                        Path.Combine(client.Path, MinecraftLauncher.AssetIndexFolder) + Path.DirectorySeparatorChar,
+                    };
+
+                    foreach (var file in nonlistedFiles)
+                        if (blacklistedFolders.Any(file.StartsWith))
+                        {
+                            logger.Warn("Deleting unknown file \"{0}\" in blacklisted folder!", file);
+                            File.Delete(file);
+                        }
+                }
 
                 TotalFilesToUpdate = filesToUpdate.Count;
                 FilesRemainingToUpdate = filesToUpdate.Count;
