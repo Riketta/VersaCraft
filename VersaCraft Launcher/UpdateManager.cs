@@ -119,17 +119,37 @@ namespace VersaCraft_Launcher
 
             await Task.Run(() =>
             {
+                List<string> nonlistedFiles = null;
+                if (Directory.Exists(client.Path))
+                    nonlistedFiles = new List<string>(Directory.GetFiles(client.Path, "*", SearchOption.AllDirectories));
+
                 var remoteClientFiles = Config.Instance.ClientsFiles.Files.Where(f => f.Filepath.StartsWith(client.Path + Path.DirectorySeparatorChar) || f.Filepath.StartsWith(client.Path + Path.AltDirectorySeparatorChar));
                 foreach (var remoteFile in remoteClientFiles)
                 {
                     if (File.Exists(remoteFile.Filepath))
-                        if (CryptoUtils.CalculateFileMD5(remoteFile.Filepath) == remoteFile.Hash) // file exist and up to date, no reason to update it
-                            continue;
+                    {
+                        if (CryptoUtils.CalculateFileMD5(remoteFile.Filepath) != remoteFile.Hash) // file exist and up to date, no reason to update it
+                            filesToUpdate.Add(remoteFile.Filepath);
 
-                    filesToUpdate.Add(remoteFile.Filepath);
+                        nonlistedFiles.Remove(remoteFile.Filepath);
+                    }
                 }
 
-                // TODO: remove not listed local files, except settings and saves
+                string[] blacklistedFolders = new string[]
+                {
+                    Path.Combine(client.Path, MinecraftLauncher.VersionsFolder) + Path.DirectorySeparatorChar,
+                    Path.Combine(client.Path, MinecraftLauncher.LibrariesFolder) + Path.DirectorySeparatorChar,
+                    Path.Combine(client.Path, MinecraftLauncher.NativesFolder) + Path.DirectorySeparatorChar,
+                    Path.Combine(client.Path, MinecraftLauncher.ModsFolder) + Path.DirectorySeparatorChar,
+                    Path.Combine(client.Path, MinecraftLauncher.AssetIndexFolder) + Path.DirectorySeparatorChar,
+                };
+
+                foreach (var file in nonlistedFiles)
+                    if (blacklistedFolders.Any(file.StartsWith))
+                    {
+                        logger.Warn("Deleting unknown file \"{0}\" in blacklisted forlder!", file);
+                        File.Delete(file);
+                    }
 
                 TotalFilesToUpdate = filesToUpdate.Count;
                 FilesRemainingToUpdate = filesToUpdate.Count;

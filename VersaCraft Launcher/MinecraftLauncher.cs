@@ -25,6 +25,7 @@ namespace VersaCraft_Launcher
         public static readonly string AssetIndexFolder = Path.Combine(AssetFolder, @"indexes");
         public static readonly string NativesFolder = @"natives";
         public static readonly string LibrariesFolder = @"libraries";
+        public static readonly string ModsFolder = @"mods";
         public static readonly string JavaExecutable = @"jre\bin\javaw.exe";
 
         public static string GetMainClass(string version)
