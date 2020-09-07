@@ -23,6 +23,8 @@ namespace VersaCraft_Launcher
 
         public static ClientState State { get; private set; } = ClientState.Connecting;
 
+        static readonly int AttemptLimit = 5;
+
         static TcpClient client = null;
         static NetworkStream stream = null;
 
@@ -40,7 +42,7 @@ namespace VersaCraft_Launcher
         {
             logger.Info("Connecting to server {0}:{1}", Config.Instance.Address, Protocol.Port);
 
-            for (int i = 0; i < 5; i++)
+            for (int attempt = 0; attempt < AttemptLimit; attempt++)
             {
                 try
                 {
@@ -48,6 +50,8 @@ namespace VersaCraft_Launcher
                     
                     client = new TcpClient(Config.Instance.Address, Protocol.Port);
                     stream = client.GetStream();
+
+                    attempt = 0; // reset attempts if successfully connected
 
                     await Task.Run(() =>
                     {
@@ -63,7 +67,7 @@ namespace VersaCraft_Launcher
                 }
                 catch (Exception ex)
                 {
-                    logger.Info("Reconnecting to server with try #{0}", i + 1);
+                    logger.Info("Reconnecting to server with try #{0}", attempt + 1);
                     logger.Error(ex.ToString());
                 }
             }
