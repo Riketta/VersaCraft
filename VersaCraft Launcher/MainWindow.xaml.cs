@@ -34,6 +34,7 @@ namespace VersaCraft_Launcher
             logger.Info("VersaCraft Launcher ver. {0}", version);
 
             ControlsManager.MainForm = this;
+            ControlsManager.UpdateProgress = updateBar;
             ControlsManager.ClientsComboBox = clients;
             ControlsManager.StatusLabel = status;
             ControlsManager.LoginButton = login;

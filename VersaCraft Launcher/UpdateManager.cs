@@ -25,18 +25,35 @@ namespace VersaCraft_Launcher
 
         public static AutoResetEvent LauncherUpdate = new AutoResetEvent(false);
         public static AutoResetEvent ClientUpdate = new AutoResetEvent(false);
-        
+
+        public static int TotalFilesToUpdate
+        {
+            get
+            {
+                return totalFilesToUpdate;
+            }
+            private set
+            {
+                totalFilesToUpdate = value;
+                ControlsManager.SetMaxProgress(value); // TODO: move it away
+            }
+        }
+        static int totalFilesToUpdate = 0;
+
         public static int FilesRemainingToUpdate
         {
             get
             {
                 return filesRemainingToUpdate;
             }
-            set
+            private set
             {
+                filesRemainingToUpdate = value;
+                
                 if (value == 0)
                     ClientUpdate.Set();
-                filesRemainingToUpdate = value;
+
+                ControlsManager.SetProgress(TotalFilesToUpdate - FilesRemainingToUpdate); // TODO: move it away
             }
         }
         static int filesRemainingToUpdate = 0;
@@ -114,9 +131,8 @@ namespace VersaCraft_Launcher
 
                 // TODO: remove not listed local files, except settings and saves
 
+                TotalFilesToUpdate = filesToUpdate.Count;
                 FilesRemainingToUpdate = filesToUpdate.Count;
-
-                // TODO: prepare progress bar
 
                 foreach (var file in filesToUpdate)
                     Client.RequestFile(file);

@@ -169,8 +169,6 @@ namespace VersaCraft_Launcher
 
         public static async Task Login(string username, string password)
         {
-
-
             if (Client.IsConnected())
             {
                 if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
@@ -192,10 +190,14 @@ namespace VersaCraft_Launcher
                 logger.Info("Requesting client update");
                 ClientsData.Client client = Config.Instance.Clients.Clients.First(c => c.Name == clientName);
 
+                ControlsManager.SetStatus("Checking for updates...");
                 await UpdateManager.UpdateClient(client);
+
                 logger.Info("Waiting client updates to finish");
+                ControlsManager.SetStatus("Updating...");
                 await Task.Run(() => { UpdateManager.ClientUpdate.WaitOne(); });
                 logger.Info("Client updating done");
+                ControlsManager.SetStatus("Ready");
 
                 logger.Info("Updating config with current login data");
                 Config.Instance.Username = username;
@@ -212,10 +214,10 @@ namespace VersaCraft_Launcher
                 logger.Info("Launching Minecraft");
                 ControlsManager.SetStatus("Launching Minecraft...");
                 Anticheat.HideLauncher();
-                var minecraft = MinecraftLauncher.Start(username, session, client.Server, client.Path);
+                var minecraft = Start(username, session, client.Server, client.Path);
 
                 if (Config.Instance.WindowedFullscreen)
-                    MinecraftLauncher.EnableWindowedFullscreen(minecraft);
+                    EnableWindowedFullscreen(minecraft);
 
                 Anticheat.Protect();
 

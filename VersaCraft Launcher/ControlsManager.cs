@@ -16,6 +16,7 @@ namespace VersaCraft_Launcher
         private static readonly Logger logger = Logger.GetLogger();
 
         public static MainWindow MainForm { private get; set; } = null;
+        public static ProgressBar UpdateProgress { private get; set; } = null;
         public static Label StatusLabel { private get; set; } = null;
         public static Button LoginButton { private get; set; } = null;
         public static ComboBox ClientsComboBox { private get; set; } = null;
@@ -29,6 +30,28 @@ namespace VersaCraft_Launcher
             }
 
             Application.Current.Dispatcher.Invoke(() => { MainForm.WindowState = WindowState.Minimized; });
+        }
+
+        public static void SetMaxProgress(int maxProgress)
+        {
+            if (UpdateProgress == null)
+            {
+                logger.Warn("Progress bar not assigned! Can't update.");
+                return;
+            }
+
+            Application.Current.Dispatcher.Invoke(() => { UpdateProgress.Maximum = maxProgress; });
+        }
+
+        public static void SetProgress(int progress)
+        {
+            if (UpdateProgress == null)
+            {
+                logger.Warn("Progress bar not assigned! Can't update.");
+                return;
+            }
+
+            Application.Current.Dispatcher.Invoke(() => { UpdateProgress.Value = progress; });
         }
 
         public static void SetStatus(string text)
