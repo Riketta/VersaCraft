@@ -27,6 +27,7 @@ namespace VersaCraft_Launcher
                 writer.WriteLine("[{0}] {1}", DateTime.Now.ToString("o"), error);
             
             logger.Error(error);
+            ControlsManager.SetStatus("Fatal error occured! Please, send logs to developers.");
         }
     }
 }
