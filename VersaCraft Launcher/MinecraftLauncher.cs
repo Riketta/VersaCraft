@@ -222,7 +222,7 @@ namespace VersaCraft_Launcher
                 Anticheat.Protect();
 
                 logger.Info("All jobs done");
-                Application.Exit();
+                System.Windows.Application.Current.Shutdown();
             }
 
             // TODO: offline mode
