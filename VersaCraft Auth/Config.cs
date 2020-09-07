@@ -69,8 +69,8 @@ namespace VersaCraft_Auth
         public byte[] LauncherData { get => launcherData; }
         byte[] launcherData = null;
 
-        public string LauncherVersion { get => launcherVersion; }
-        string launcherVersion = null;
+        public Version LauncherVersion { get => launcherVersion; }
+        Version launcherVersion = null;
 
         public ClientsData Clients { get => clients; }
         ClientsData clients;
@@ -104,8 +104,8 @@ namespace VersaCraft_Auth
             }
 
             launcherData = File.ReadAllBytes(launcherFile);
-            launcherVersion = AssemblyName.GetAssemblyName(launcherFile).Version.ToString();
-            logger.Info("Loaded into memory ({0} bytes) launcher ver. {1}", launcherData.Length, LauncherVersion);
+            launcherVersion = AssemblyName.GetAssemblyName(launcherFile).Version;
+            logger.Info("Loaded into memory ({0} bytes) launcher ver. {1}", launcherData.Length, LauncherVersion.ToString());
         }
 
         /// <summary>

@@ -23,7 +23,10 @@ namespace VersaCraft_Auth
 
         public static void SendLauncher(string version, TcpClient client)
         {
-            bool isUpdateRequired = Config.Instance.LauncherVersion.CompareTo(version) > 0;
+            if (!Version.TryParse(version, out Version requester))
+                return;
+
+            bool isUpdateRequired = Config.Instance.LauncherVersion > requester;
 
             FileData launcher = new FileData()
             {
