@@ -17,6 +17,7 @@
                 <Label x:Name="status" Content="Ready" HorizontalAlignment="Left" Margin="0,24,0,0" VerticalAlignment="Top" Padding="2"/>
                 <PasswordBox x:Name="password" Margin="574,29,80,0" VerticalAlignment="Top" Height="20" PasswordChanged="Password_PasswordChanged" GotFocus="Password_GotFocus" TabIndex="101"/>
                 <ComboBox x:Name="clients" HorizontalAlignment="Left" Margin="320,28,0,0" VerticalAlignment="Top" Width="120" SelectionChanged="Clients_SelectionChanged" TabIndex="104"/>
+                <CheckBox x:Name="isWindowedFullscreen" Content="Windowed Fullscreen" Margin="0,0,460,4" Height="15" VerticalAlignment="Bottom" HorizontalAlignment="Right" HorizontalContentAlignment="Right" Unchecked="IsWindowedFullscreen_Unchecked" TabIndex="103" Checked="IsWindowedFullscreen_Checked"/>
             </Grid>
         </Border>
     </Grid>

@@ -46,6 +46,7 @@ namespace VersaCraft_Launcher
             username.Text = Config.Instance.Username;
             password.Password = Config.Instance.PassHash;
             isSavingPassword.IsChecked = Config.Instance.IsSavingPassword;
+            isWindowedFullscreen.IsChecked = Config.Instance.WindowedFullscreen;
             ControlsManager.UpdateClientsComboBox(Config.Instance.Clients);
         }
 
@@ -151,6 +152,24 @@ namespace VersaCraft_Launcher
             string url = Config.Instance.Clients.Clients.FirstOrDefault(c => c.Name == Config.Instance.SelectedClient).URL;
             if (!string.IsNullOrEmpty(url))
                 browser.Navigate(new Uri(url));
+        }
+
+        private void IsWindowedFullscreen_Checked(object sender, RoutedEventArgs e)
+        {
+            IsWindowedFullscreen_Switched(sender, e);
+        }
+
+        private void IsWindowedFullscreen_Unchecked(object sender, RoutedEventArgs e)
+        {
+            IsWindowedFullscreen_Switched(sender, e);
+
+        }
+
+        private void IsWindowedFullscreen_Switched(object sender, RoutedEventArgs e)
+        {
+            var cb = ((CheckBox)sender).IsChecked;
+            if (cb.HasValue)
+                Config.Instance.WindowedFullscreen = cb.Value;
         }
     }
 }
