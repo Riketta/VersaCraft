@@ -1,5 +1,5 @@
 # VersaCraft
-Launcher and Auth&amp;Update server
+Minecraft Launcher and Auth&Update server for game clients
 
 # Authors
 Developed by Riketta
